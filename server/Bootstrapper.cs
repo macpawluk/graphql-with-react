@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
+﻿using MongoDB.Bson.Serialization.Conventions;
 
 namespace MyPlays.GraphQlWebApi
 {
@@ -13,18 +12,6 @@ namespace MyPlays.GraphQlWebApi
                     new CamelCaseElementNameConvention(),
                     new IgnoreExtraElementsConvention(true)
                 }, _ => true);
-
-            static void Register<T>()
-            {
-                if (!BsonClassMap.IsClassMapRegistered(typeof(T)))
-                    BsonClassMap.RegisterClassMap<T>(cm =>
-                    {
-                        cm.AutoMap();
-                        cm.SetDiscriminatorIsRequired(true);
-                    });
-            }
-
-            //Register<AmericanFootballPlayer>();
         }
     }
 }

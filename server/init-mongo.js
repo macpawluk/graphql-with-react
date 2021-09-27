@@ -1,23 +1,54 @@
 db2 = db.getSiblingDB("projectsdb");
+
+const frontEndProject = {
+    "_id": new ObjectId(),
+    "name": "Front-end project",
+    "abbreviation": "FE",
+    "color": "#9860FF"
+};
+
+const backEndProject = {
+    "_id": new ObjectId(),
+    "name": "Back-end project",
+    "abbreviation": "BE",
+    "color": "#FF8263"
+};
+
 db2.getCollection("projects").insertMany(
     [
+        frontEndProject,
+        backEndProject
+    ]
+);
+
+db2.getCollection("issues").insertMany(
+    [
         {
-            "_id": ObjectId("614f5df0acdaff861ce5c378"),
-            "name": "Al Calpone",
-            "abbreviation": "AC",
-            "color": "#FFFF"
+            "_id": new ObjectId(),
+            "name": "Pretty serious bug",
+            "type": 2,
+            "project": {
+                "_id": frontEndProject._id,
+                "name": frontEndProject.name
+            }
         },
         {
-            "_id": ObjectId("614f5df0acdaff861ce5c377"),
-            "name": "Video Capture",
-            "abbreviation": "VC",
-            "color": "#FF0000"
+            "_id": new ObjectId(),
+            "name": "Nice improvement",
+            "type": 4,
+            "project": {
+                "_id": frontEndProject._id,
+                "name": frontEndProject.name
+            }
         },
         {
-            "_id": ObjectId("614f5da9acdaff861ce5c376"),
-            "name": "Crazy Horse",
-            "abbreviation": "CH",
-            "color": "#FFFF00"
+            "_id": new ObjectId(),
+            "name": "Regular story",
+            "type": 3,
+            "project": {
+                "_id": frontEndProject._id,
+                "name": frontEndProject.name
+            }
         }
     ]
 );

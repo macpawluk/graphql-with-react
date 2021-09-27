@@ -1,9 +1,14 @@
+using GraphQL.Server;
+using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Logging;
+using MyPlays.GraphQlWebApi.Graph;
+using MyPlays.GraphQlWebApi.Graph.Types;
+using MyPlays.GraphQlWebApi.Services;
 
 namespace MyPlays.GraphQlWebApi
 {
@@ -14,15 +19,22 @@ namespace MyPlays.GraphQlWebApi
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "A Web API for my own plays", Version = "v1" });
-            });
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+
+            // GraphQL stuff
+            services
+                .AddTransient<IProjectsDataService, ProjectsDataService>()
+                .AddSingleton<ProjectsQuery>()
+                .AddSingleton<ProjectGraphType>()
+                .AddSingleton<IssueGraphType>()
+                .AddSingleton<IssueTypeGraphType>()
+                .AddSingleton<ISchema, ProjectsSchema>()
+                .AddGraphQL(options => options.EnableMetrics = true)
+                .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
+                .AddSystemTextJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -31,18 +43,17 @@ namespace MyPlays.GraphQlWebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "docker_web_api_2 v1"));
             }
 
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            app.UseGraphQL<ISchema>().UseGraphQLPlayground();
         }
     }
 }

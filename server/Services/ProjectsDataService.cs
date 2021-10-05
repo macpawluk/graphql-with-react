@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using LinqKit;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MyPlays.GraphQlWebApi.Extensions;
@@ -29,7 +30,13 @@ namespace MyPlays.GraphQlWebApi.Services
             var projectsCollection = database.GetDBCollection<Project>();
             var issuesCollection = database.GetDBCollection<Issue>();
 
-            var projectsTask = (await projectsCollection.FindAsync(p => true)).ToListAsync();
+            var projectsExpr = PredicateBuilder
+                .New<Project>(true)
+                .ConditionalAnd(p => idsFilter.Contains(p.Id), idsFilter != null);
+
+            var projectsTask = (await projectsCollection
+                .FindAsync(projectsExpr))
+                .ToListAsync();
             Task<List<Project>> projectsIssuesTask = Task.FromResult<List<Project>>(null);
 
             if (withIssues)
@@ -53,7 +60,7 @@ namespace MyPlays.GraphQlWebApi.Services
 
             var projects = projectsTask.Result;
 
-            if (withIssues)
+            if (withIssues && projects.Any())
             {
                 var projectsIssues = projectsIssuesTask.Result;
                 var issuesDictionary = new Dictionary<string, string[]>();

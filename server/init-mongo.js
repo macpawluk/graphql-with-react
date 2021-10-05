@@ -1,23 +1,79 @@
 db2 = db.getSiblingDB("projectsdb");
 
-const frontEndProject = {
+const frontEndApp = {
     "_id": new ObjectId(),
-    "name": "Front-end project",
+    "name": "Front-end app",
     "abbreviation": "FE",
+    "description": "The front-end application for handling the tickets.",
     "color": "#9860FF"
 };
 
-const backEndProject = {
+const webApi = {
     "_id": new ObjectId(),
-    "name": "Back-end project",
+    "name": "Web API",
     "abbreviation": "BE",
+    "description": "GrapQL API for serving projects related data.",
     "color": "#FF8263"
+};
+
+const project3 = {
+    "_id": new ObjectId(),
+    "name": "Palace",
+    "abbreviation": "PL",
+    "description": "The secrect project of bulding new mansion.",
+    "color": "#00D8FF"
+};
+
+const project4 = {
+    "_id": new ObjectId(),
+    "name": "Rio",
+    "abbreviation": "RO",
+    "description": "Plan to explore Rio De Janeiro and its neighbourhood",
+    "color": "#00A53F"
+};
+
+const project5 = {
+    "_id": new ObjectId(),
+    "name": "Labyrinth",
+    "abbreviation": "LB",
+    "description": "The quiz application for kids in school age.",
+    "color": "#333300"
+};
+
+const project6 = {
+    "_id": new ObjectId(),
+    "name": "Seeburg",
+    "abbreviation": "P6",
+    "description": "The FPS game inspired by cartoon world.",
+    "color": "#FF0066"
+};
+
+const project7 = {
+    "_id": new ObjectId(),
+    "name": "Aloha",
+    "abbreviation": "P7",
+    "description": "The music project that main goal is helping in relaxation.",
+    "color": "#CDCD00"
+};
+
+const project8 = {
+    "_id": new ObjectId(),
+    "name": "Lambeth",
+    "abbreviation": "P8",
+    "description": "Standalone tool for scraping news feeds from random sources.",
+    "color": "#7A7A7A"
 };
 
 db2.getCollection("projects").insertMany(
     [
-        frontEndProject,
-        backEndProject
+        frontEndApp,
+        webApi,
+        project3,
+        project4,
+        project5,
+        project6,
+        project7,
+        project8
     ]
 );
 
@@ -28,8 +84,8 @@ db2.getCollection("issues").insertMany(
             "name": "Pretty serious bug",
             "type": 2,
             "project": {
-                "_id": frontEndProject._id,
-                "name": frontEndProject.name
+                "_id": frontEndApp._id,
+                "name": frontEndApp.name
             }
         },
         {
@@ -37,8 +93,8 @@ db2.getCollection("issues").insertMany(
             "name": "Nice improvement",
             "type": 4,
             "project": {
-                "_id": frontEndProject._id,
-                "name": frontEndProject.name
+                "_id": frontEndApp._id,
+                "name": frontEndApp.name
             }
         },
         {
@@ -46,8 +102,8 @@ db2.getCollection("issues").insertMany(
             "name": "Regular story",
             "type": 3,
             "project": {
-                "_id": frontEndProject._id,
-                "name": frontEndProject.name
+                "_id": frontEndApp._id,
+                "name": frontEndApp.name
             }
         }
     ]

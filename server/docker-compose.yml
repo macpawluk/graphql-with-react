@@ -6,13 +6,14 @@ services:
   graphqlwebapi:
     image: graphqlwebapi
     container_name: 'graphqlwebapi-container'
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
     ports:
-      - 5000:5000
+      - 5001:5000
     depends_on:
       - mongodb
     links:
@@ -21,6 +22,7 @@ services:
   mongodb:
     image: mongo:5.0.3
     container_name: 'mongodb-container'
+    restart: unless-stopped
     environment:
       - MONGO_INITDB_DATABASE=projectsdb
       - MONGO_INITDB_ROOT_USERNAME=admin

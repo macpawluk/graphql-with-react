@@ -5,7 +5,7 @@ using MyPlays.GraphQlWebApi.Services;
 
 namespace MyPlays.GraphQlWebApi.Graph
 {
-    /* This is exemplary query. Let's remove the controller
+    /* These are exemplary queries.
        query projectQuery {
            project(id: "6158a8471c3b7c8990e9c8ec") {
                id,

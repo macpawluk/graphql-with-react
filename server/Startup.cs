@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using MyPlays.GraphQlWebApi.Graph;
 using MyPlays.GraphQlWebApi.Graph.Types;
 using MyPlays.GraphQlWebApi.Services;
@@ -14,6 +13,8 @@ namespace MyPlays.GraphQlWebApi
 {
     public class Startup
     {
+        private const string CorsPolicyName = "DefaultPolicy";
+
         public Startup(IConfiguration configuration)
             => Configuration = configuration;
 
@@ -21,6 +22,19 @@ namespace MyPlays.GraphQlWebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+
+                options.AddPolicy(CorsPolicyName, builder =>
+                {
+                    builder
+                    .AllowAnyHeader()
+                    .WithMethods("GET", "POST")
+                    .WithOrigins(appSettings.CorsOrigin);
+                });
+            });
+
             services.AddControllers();
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
@@ -40,6 +54,8 @@ namespace MyPlays.GraphQlWebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors(CorsPolicyName);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

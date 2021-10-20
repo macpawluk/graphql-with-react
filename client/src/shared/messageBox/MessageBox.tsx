@@ -6,14 +6,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Slide,
-  SlideProps,
 } from '@mui/material';
-import * as React from 'react';
-
-const Transition = React.forwardRef<unknown, SlideProps>((props, ref) => (
-  <Slide direction="up" ref={ref} {...props} />
-));
+import { SlideTransition } from './../../shared/Transitions';
 
 export function MessageBox(props: {
   open: boolean;
@@ -52,7 +46,7 @@ export function MessageBox(props: {
   return (
     <Dialog
       open={open}
-      TransitionComponent={Transition}
+      TransitionComponent={SlideTransition}
       keepMounted
       onClose={handleClose}
       aria-describedby="alert-dialog-slide-description"

@@ -8,6 +8,9 @@ namespace MyPlays.GraphQlWebApi.Graph
     {
         public ProjectsSchema(IServiceProvider provider)
             : base(provider)
-            => Query = provider.GetRequiredService<ProjectsQuery>();
+        {
+            Query = provider.GetRequiredService<ProjectsQuery>();
+            Mutation = provider.GetRequiredService<ProjectsMutation>();
+        }
     }
 }

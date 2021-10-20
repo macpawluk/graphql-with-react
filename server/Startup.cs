@@ -42,7 +42,9 @@ namespace MyPlays.GraphQlWebApi
             services
                 .AddTransient<IProjectsDataService, ProjectsDataService>()
                 .AddSingleton<ProjectsQuery>()
+                .AddSingleton<ProjectsMutation>()
                 .AddSingleton<ProjectGraphType>()
+                .AddSingleton<EntityWithIdInputGraphType>()
                 .AddSingleton<IssueGraphType>()
                 .AddSingleton<IssueTypeGraphType>()
                 .AddSingleton<ISchema, ProjectsSchema>()

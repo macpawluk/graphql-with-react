@@ -1,5 +1,5 @@
 import { Project } from './../../models';
-import { graphQlFetch } from './../../utils/graphQl';
+import { graphQlFetch, graphQlMutate } from './../../utils/graphQl';
 
 const queryAll = `
     query projectsQuery {
@@ -48,4 +48,21 @@ const querySingle = (id: string) => `
 export async function fetchProjectDetails(id: string): Promise<Project> {
   const result = await graphQlFetch<{ project: Project }>(querySingle(id));
   return result.project;
+}
+
+const removeProjectMutation = `
+    mutation ($project:EntityIDInput!) {
+      removeProject(project: $project) {
+        id,
+        name
+      }
+    }
+`;
+
+export async function removeProject(id: string): Promise<Project> {
+  const result = await graphQlMutate<{ removeProject: Project }>(
+    removeProjectMutation,
+    { project: { id } }
+  );
+  return result.removeProject;
 }

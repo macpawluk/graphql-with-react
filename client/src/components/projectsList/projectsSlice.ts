@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 import { Project } from './../../models';
 import { fetchAllProjects, fetchProjectDetails } from './projectsApi';
@@ -34,7 +34,14 @@ export const getAllProjectsAsync = createAsyncThunk(
 export const projectsSlice = createSlice({
   name: 'projects',
   initialState,
-  reducers: {},
+  reducers: {
+    removeProject: (state, action: PayloadAction<string>) => {
+      const indexToRemove = state.items.findIndex(
+        (p) => p.id === action.payload
+      );
+      state.items.splice(indexToRemove, 1);
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getSingleProjectsAsync.pending, (state) => {
@@ -63,6 +70,8 @@ export const projectsSlice = createSlice({
       });
   },
 });
+
+export const { removeProject } = projectsSlice.actions;
 
 export const selectProjectsState = (state: RootState) => state.projects;
 export const selectProject = (state: RootState, id: string) =>

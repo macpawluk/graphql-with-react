@@ -4,14 +4,8 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace MyPlays.GraphQlWebApi.Models
 {
     [MongoCollection("projects")]
-    public class Project
+    public class Project : EntityRef, IEntity
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
-        public string Name { get; set; }
-
         public string Abbreviation { get; set; }
 
         public string Description { get; set; }

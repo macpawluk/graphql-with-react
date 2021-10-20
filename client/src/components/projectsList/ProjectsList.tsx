@@ -19,7 +19,15 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { Project } from '../../models';
 import { MessageBox } from './../../shared/messageBox';
-import { getAllProjectsAsync, selectProjectsState } from './projectsSlice';
+import { EditProjectDialog } from './EditProjectDialog';
+import { removeProject } from './projectsApi';
+import {
+  getAllProjectsAsync,
+  removeProject as removeProjectFromStore,
+  selectProjectsState,
+} from './projectsSlice';
+
+//vvv introdce aliases for some areas, such as /shared/messageBox
 
 export function ProjectsList() {
   const dispatch = useAppDispatch();
@@ -71,14 +79,33 @@ const theme = createTheme({
 
 function ProjectItem(props: { project: Project }) {
   const { project } = props;
-  const [open, setOpen] = useState(false);
+  const [openRemoveMessageBox, setOpenRemoveMessageBox] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const dispatch = useAppDispatch();
 
-  const handleDeleteMessageBoxClose = (result: boolean) => {
-    setOpen(false);
+  const handleDeleteMessageBoxClose = async (result: boolean) => {
+    setOpenRemoveMessageBox(false);
+
+    if (result === true) {
+      await removeProject(project.id);
+      dispatch(removeProjectFromStore(project.id));
+    }
+  };
+
+  const handleEditDialogClose = async (result: boolean) => {
+    setOpenEditDialog(false);
+
+    if (result) {
+      // vvv send edit request
+    }
   };
 
   const handleDeleteClick = () => {
-    setOpen(true);
+    setOpenRemoveMessageBox(true);
+  };
+
+  const handleEditClick = () => {
+    setOpenEditDialog(true);
   };
 
   return (
@@ -126,6 +153,7 @@ function ProjectItem(props: { project: Project }) {
                 aria-label="edit"
                 size="small"
                 className="on-hover-show"
+                onClick={handleEditClick}
               >
                 <EditIcon fontSize="small" />
               </IconButton>
@@ -142,8 +170,13 @@ function ProjectItem(props: { project: Project }) {
         </CardActions>
       </Card>
 
+      <EditProjectDialog
+        open={openEditDialog}
+        onClose={handleEditDialogClose}
+      ></EditProjectDialog>
+
       <MessageBox
-        open={open}
+        open={openRemoveMessageBox}
         header="Project"
         content={`Are you sure you want to permanently remove "${project.name}" project?`}
         okButtonCaption="Yes"

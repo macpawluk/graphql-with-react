@@ -5,7 +5,7 @@ const frontEndApp = {
     "name": "Front-end app",
     "abbreviation": "FE",
     "description": "The front-end application for handling the tickets.",
-    "color": "#9860FF"
+    "color": "#6e40bf"
 };
 
 const webApi = {
@@ -13,7 +13,7 @@ const webApi = {
     "name": "Web API",
     "abbreviation": "BE",
     "description": "GrapQL API for serving projects related data.",
-    "color": "#FF8263"
+    "color": "#bf5a40"
 };
 
 const project3 = {
@@ -21,7 +21,7 @@ const project3 = {
     "name": "Palace",
     "abbreviation": "PL",
     "description": "The secrect project of bulding new mansion.",
-    "color": "#00D8FF"
+    "color": "#40acbf"
 };
 
 const project4 = {
@@ -29,7 +29,7 @@ const project4 = {
     "name": "Rio",
     "abbreviation": "RO",
     "description": "Plan to explore Rio De Janeiro and its neighbourhood",
-    "color": "#00A53F"
+    "color": "#2d864e"
 };
 
 const project5 = {
@@ -37,7 +37,7 @@ const project5 = {
     "name": "Labyrinth",
     "abbreviation": "LB",
     "description": "The quiz application for kids in school age.",
-    "color": "#333300"
+    "color": "#86862d"
 };
 
 const project6 = {
@@ -45,7 +45,7 @@ const project6 = {
     "name": "Seeburg",
     "abbreviation": "P6",
     "description": "The FPS game inspired by cartoon world.",
-    "color": "#FF0066"
+    "color": "#bf4073"
 };
 
 const project7 = {
@@ -53,7 +53,7 @@ const project7 = {
     "name": "Aloha",
     "abbreviation": "P7",
     "description": "The music project that main goal is helping in relaxation.",
-    "color": "#CDCD00"
+    "color": "#2d4586"
 };
 
 const project8 = {
@@ -61,7 +61,7 @@ const project8 = {
     "name": "Lambeth",
     "abbreviation": "P8",
     "description": "Standalone tool for scraping news feeds from random sources.",
-    "color": "#7A7A7A"
+    "color": "#4d4d19"
 };
 
 db2.getCollection("projects").insertMany(

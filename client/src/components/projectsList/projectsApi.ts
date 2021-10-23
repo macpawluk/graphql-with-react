@@ -66,3 +66,63 @@ export async function removeProject(id: string): Promise<Project> {
   );
   return result.removeProject;
 }
+
+const editProjectMutation = `
+    mutation ($project:ProjectInput!) {
+      editProject(project: $project) {
+        id,
+        name,
+        abbreviation,
+        description,
+        color
+      }
+    }
+`;
+
+export async function editProject(project: Project): Promise<Project> {
+  const { id, name, abbreviation, description, color } = project;
+
+  const result = await graphQlMutate<{ editProject: Project }>(
+    editProjectMutation,
+    {
+      project: {
+        id,
+        name,
+        abbreviation,
+        description,
+        color,
+      },
+    }
+  );
+  return result.editProject;
+}
+
+const addProjectMutation = `
+    mutation ($project:ProjectInsertInput!) {
+      addProject(project: $project) {
+        id,
+        name,
+        abbreviation,
+        description,
+        color
+      }
+    }
+`;
+
+export async function addProject(project: Project): Promise<Project> {
+  const { id, name, abbreviation, description, color } = project;
+
+  const result = await graphQlMutate<{ addProject: Project }>(
+    addProjectMutation,
+    {
+      project: {
+        id,
+        name,
+        abbreviation,
+        description,
+        color,
+      },
+    }
+  );
+  return result.addProject;
+}

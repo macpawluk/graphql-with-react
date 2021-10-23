@@ -1,4 +1,6 @@
-﻿using MyPlays.GraphQlWebApi.Models;
+﻿using MongoDB.Driver;
+using MyPlays.GraphQlWebApi.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,6 +15,12 @@ namespace MyPlays.GraphQlWebApi.Services
         Task<IReadOnlyCollection<Issue>> GetIssuesByIdsAsync(List<string> ids);
 
         Task DeleteEnityById<T>(string id)
+            where T : EntityWithId;
+
+        Task<T> UpdateEnityById<T>(string id, Func<UpdateDefinitionBuilder<T>, UpdateDefinition<T>> updateCallback)
+            where T : EntityWithId;
+
+        Task<T> AddEnity<T>(T document)
             where T : EntityWithId;
     }
 }

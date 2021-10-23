@@ -17,7 +17,9 @@
     "@types/react": "^16.14.16",
     "@types/react-dom": "^16.9.14",
     "@types/react-redux": "^7.1.18",
+    "query-string": "^7.0.1",
     "react": "^17.0.2",
+    "react-color": "^2.19.3",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.5",
     "react-router-dom": "^5.3.0",
@@ -48,6 +50,7 @@
   },
   "devDependencies": {
     "@material-ui/types": "^5.1.0",
+    "@types/react-color": "^3.0.6",
     "@types/react-router-dom": "^5.3.1",
     "prettier": "^2.4.1"
   }

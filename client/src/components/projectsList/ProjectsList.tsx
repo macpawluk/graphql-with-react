@@ -1,30 +1,27 @@
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 import {
-  Avatar,
   Box,
   Breadcrumbs,
   Button,
-  Card,
-  CardActions,
-  CardContent,
-  createTheme,
-  IconButton,
+  Grid,
   Link,
-  ThemeProvider,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { History } from 'history';
+import qs from 'query-string';
+import React, { useEffect } from 'react';
+import { Link as RouterLink, useHistory } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { Project } from '../../models';
-import { MessageBox } from './../../shared/messageBox';
-import { EditProjectDialog } from './EditProjectDialog';
-import { removeProject } from './projectsApi';
+import { AddEditProjectDialog } from './AddEditProjectDialog';
+import { ProjectItem } from './ProjectItem';
+import { addProject, editProject } from './projectsApi';
+import { ProjectsConsts } from './projectsConsts';
 import {
+  addProject as addProjectToStore,
   getAllProjectsAsync,
-  removeProject as removeProjectFromStore,
   selectProjectsState,
+  updateProject as updateProjectInStore,
 } from './projectsSlice';
 
 //vvv introdce aliases for some areas, such as /shared/messageBox
@@ -32,7 +29,15 @@ import {
 export function ProjectsList() {
   const dispatch = useAppDispatch();
   const projectsState = useAppSelector(selectProjectsState);
+  const history = useHistory();
+
   const projects = projectsState.items ?? [];
+  const viewParams = getViewQueryParams();
+
+  const openAddDialog = viewParams.addProject && !viewParams.projectId;
+  const projectForEdit = projects.find(
+    (p) => p.id === viewParams.projectId
+  ) as Project;
 
   useEffect(() => {
     if (projectsState.fetchedAll || projectsState.status === 'loading') {
@@ -42,149 +47,98 @@ export function ProjectsList() {
     dispatch(getAllProjectsAsync());
   }, [dispatch, projectsState.fetchedAll, projectsState.status]);
 
+  const handleEditDialogClose = async (result: boolean, project: Project) => {
+    setQueryParam(history, ProjectsConsts.ProjectIdParam, null);
+
+    if (result === true) {
+      const updatedProject = await editProject(project);
+      dispatch(updateProjectInStore(updatedProject));
+    }
+  };
+
+  const handleAddDialogClose = async (result: boolean, project: Project) => {
+    setQueryParam(history, ProjectsConsts.AddProjectParam, false);
+
+    if (result === true) {
+      const addedProject = await addProject(project);
+      dispatch(addProjectToStore(addedProject));
+    }
+  };
+
+  const handleAddClick = () => {
+    setQueryParam(history, ProjectsConsts.AddProjectParam, true);
+  };
+
+  const handleEditClick = (project: Project) => {
+    setQueryParam(history, ProjectsConsts.ProjectIdParam, project.id);
+  };
   return (
     <React.Fragment>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mt: 2, mb: 4 }}>
-        <Link underline="hover" color="inherit" component={RouterLink} to="/">
-          Demo App
-        </Link>
-        <Typography color="text.primary">Projects</Typography>
-      </Breadcrumbs>
-
-      <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-        {projects.map((p) => (
-          <ProjectItem project={p} key={p.id} />
-        ))}
+      <Box sx={{ display: 'flex' }}>
+        <Breadcrumbs aria-label="breadcrumb" sx={{ mt: 3, mb: 4, flexGrow: 1 }}>
+          <Link underline="hover" color="inherit" component={RouterLink} to="/">
+            Demo App
+          </Link>
+          <Typography color="text.primary">Projects</Typography>
+        </Breadcrumbs>
+        <Button
+          variant="contained"
+          color="success"
+          sx={{ flexGrow: 0, alignSelf: 'center' }}
+          endIcon={<AddIcon />}
+          onClick={() => handleAddClick()}
+        >
+          Add New
+        </Button>
       </Box>
+
+      <Grid container spacing={2}>
+        {projects.map((p) => (
+          <Grid item xs={3} sx={{ height: 220 }}>
+            <ProjectItem key={p.id} project={p} onEditClick={handleEditClick} />
+          </Grid>
+        ))}
+      </Grid>
+
+      <AddEditProjectDialog
+        project={projectForEdit}
+        mode="Edit"
+        open={!!projectForEdit}
+        onClose={handleEditDialogClose}
+      ></AddEditProjectDialog>
+
+      <AddEditProjectDialog
+        mode="Add"
+        open={openAddDialog}
+        onClose={handleAddDialogClose}
+      ></AddEditProjectDialog>
     </React.Fragment>
   );
 }
 
-const theme = createTheme({
-  components: {
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          '& .on-hover-show': {
-            display: 'none',
-          },
-          '&:hover .on-hover-show': {
-            display: 'inline-flex',
-          },
-        },
-      },
-    },
-  },
-});
-
-function ProjectItem(props: { project: Project }) {
-  const { project } = props;
-  const [openRemoveMessageBox, setOpenRemoveMessageBox] = useState(false);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const dispatch = useAppDispatch();
-
-  const handleDeleteMessageBoxClose = async (result: boolean) => {
-    setOpenRemoveMessageBox(false);
-
-    if (result === true) {
-      await removeProject(project.id);
-      dispatch(removeProjectFromStore(project.id));
-    }
+const getViewQueryParams = () => {
+  const queryParams = qs.parse(window.location.search) as {
+    projectId: string;
+    addProject: string;
   };
-
-  const handleEditDialogClose = async (result: boolean) => {
-    setOpenEditDialog(false);
-
-    if (result) {
-      // vvv send edit request
-    }
+  return {
+    projectId: queryParams?.projectId ?? '',
+    addProject: queryParams.addProject?.toLocaleLowerCase() === 'true',
   };
+};
 
-  const handleDeleteClick = () => {
-    setOpenRemoveMessageBox(true);
-  };
+const setQueryParam = <T extends { toString(): string }>(
+  history: History<unknown>,
+  paramName: string,
+  value: T | null
+) => {
+  const params = new URLSearchParams();
 
-  const handleEditClick = () => {
-    setOpenEditDialog(true);
-  };
-
-  return (
-    <ThemeProvider theme={theme}>
-      <Card sx={{ mb: 2, mr: 2, width: 270 }}>
-        <CardContent sx={{ height: 120 }}>
-          <div style={{ display: 'flex' }}>
-            <div style={{ flexGrow: 1 }}>
-              <Typography
-                sx={{ fontSize: 14 }}
-                color="text.secondary"
-                gutterBottom
-              >
-                Project
-              </Typography>
-              <Typography variant="h5" component="div">
-                {project.name}
-              </Typography>
-            </div>
-
-            <Avatar
-              sx={{
-                bgcolor: project.color,
-                width: 30,
-                height: 30,
-                fontSize: 12,
-                flexGrow: 0,
-              }}
-            >
-              {project.abbreviation}
-            </Avatar>
-          </div>
-          <Typography variant="body2">{project.description}</Typography>
-        </CardContent>
-        <CardActions>
-          <div style={{ display: 'flex', width: '100%' }}>
-            <div style={{ flexGrow: 1 }}>
-              <Button component={RouterLink} to={`/project/${project.id}`}>
-                Open
-              </Button>
-            </div>
-
-            <div style={{ display: 'flex' }}>
-              <IconButton
-                aria-label="edit"
-                size="small"
-                className="on-hover-show"
-                onClick={handleEditClick}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                aria-label="delete"
-                size="small"
-                className="on-hover-show"
-                onClick={handleDeleteClick}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </div>
-          </div>
-        </CardActions>
-      </Card>
-
-      <EditProjectDialog
-        open={openEditDialog}
-        onClose={handleEditDialogClose}
-      ></EditProjectDialog>
-
-      <MessageBox
-        open={openRemoveMessageBox}
-        header="Project"
-        content={`Are you sure you want to permanently remove "${project.name}" project?`}
-        okButtonCaption="Yes"
-        okButtonColor="error"
-        okButtonVariant="contained"
-        cancelButtonCaption="No"
-        onClose={handleDeleteMessageBoxClose}
-      ></MessageBox>
-    </ThemeProvider>
-  );
-}
+  if (value) {
+    params.append(paramName, value.toString());
+    history.push({ search: params.toString() });
+  } else {
+    params.delete(paramName);
+    history.push({ search: params.toString() });
+  }
+};

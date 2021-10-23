@@ -45,6 +45,8 @@ namespace MyPlays.GraphQlWebApi
                 .AddSingleton<ProjectsMutation>()
                 .AddSingleton<ProjectGraphType>()
                 .AddSingleton<EntityWithIdInputGraphType>()
+                .AddSingleton<ProjectInputGraphType>()
+                .AddSingleton<ProjectInsertGraphType>()
                 .AddSingleton<IssueGraphType>()
                 .AddSingleton<IssueTypeGraphType>()
                 .AddSingleton<ISchema, ProjectsSchema>()

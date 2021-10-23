@@ -96,5 +96,30 @@ namespace MyPlays.GraphQlWebApi.Services
             var projectsCollection = database.GetDBCollection<T>();
             await projectsCollection.DeleteOneAsync(p => p.Id == id);
         }
+
+        public async Task<T> UpdateEnityById<T>(string id, Func<UpdateDefinitionBuilder<T>, UpdateDefinition<T>> updateCallback)
+            where T : EntityWithId
+        {
+            var database = GetDatabase();
+
+            var updateBuilder = Builders<T>.Update;
+            var updateDefinition = updateCallback(updateBuilder);
+
+            var collection = database.GetDBCollection<T>();
+            await collection.UpdateOneAsync(x => x.Id == id, updateDefinition);
+
+            return await (await collection.FindAsync(x => x.Id == id)).FirstOrDefaultAsync();
+        }
+
+        public async Task<T> AddEnity<T>(T document)
+           where T : EntityWithId
+        {
+            var database = GetDatabase();
+
+            var collection = database.GetDBCollection<T>();
+            await collection.InsertOneAsync(document);
+
+            return document;
+        }
     }
 }

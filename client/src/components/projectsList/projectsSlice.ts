@@ -1,12 +1,17 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
-import { Project } from './../../models';
+import { Issue, Project } from './../../models';
 import { fetchAllProjects, fetchProjectDetails } from './projectsApi';
 
 export interface ProjectsState {
   items: Project[];
   fetchedAll: boolean;
   status: 'idle' | 'loading' | 'failed';
+}
+
+interface IssueActionPayload {
+  projectId: string;
+  issue: Issue;
 }
 
 const initialState: ProjectsState = {
@@ -42,13 +47,59 @@ export const projectsSlice = createSlice({
       const indexToUpdate = state.items.findIndex(
         (p) => p.id === action.payload.id
       );
+      if (indexToUpdate < 0) {
+        return;
+      }
       state.items[indexToUpdate] = action.payload;
     },
     removeProject: (state, action: PayloadAction<string>) => {
       const indexToRemove = state.items.findIndex(
         (p) => p.id === action.payload
       );
+      if (indexToRemove < 0) {
+        return;
+      }
       state.items.splice(indexToRemove, 1);
+    },
+    addIssue: (state, action: PayloadAction<IssueActionPayload>) => {
+      const { projectId, issue } = action.payload;
+      const projectToUpdate = state.items.find((p) => p.id === projectId);
+      if (!projectToUpdate) {
+        return;
+      }
+
+      projectToUpdate.issuesConnection.items.push(issue);
+    },
+    updateIssue: (state, action: PayloadAction<IssueActionPayload>) => {
+      const { projectId, issue } = action.payload;
+      const projectToUpdate = state.items.find((p) => p.id === projectId);
+      if (!projectToUpdate) {
+        return;
+      }
+      const indexToUpdate = projectToUpdate.issuesConnection.items.findIndex(
+        (p) => p.id === issue.id
+      );
+      if (indexToUpdate < 0) {
+        return;
+      }
+      projectToUpdate.issuesConnection.items[indexToUpdate] = issue;
+    },
+    removeIssue: (
+      state,
+      action: PayloadAction<{ projectId: string; issueId: string }>
+    ) => {
+      const { projectId, issueId } = action.payload;
+      const projectToUpdate = state.items.find((p) => p.id === projectId);
+      if (!projectToUpdate) {
+        return;
+      }
+      const indexToRemove = projectToUpdate.issuesConnection.items.findIndex(
+        (p) => p.id === issueId
+      );
+      if (indexToRemove < 0) {
+        return;
+      }
+      projectToUpdate.issuesConnection.items.splice(indexToRemove, 1);
     },
   },
   extraReducers: (builder) => {
@@ -80,8 +131,14 @@ export const projectsSlice = createSlice({
   },
 });
 
-export const { addProject, updateProject, removeProject } =
-  projectsSlice.actions;
+export const {
+  addProject,
+  updateProject,
+  removeProject,
+  addIssue,
+  updateIssue,
+  removeIssue,
+} = projectsSlice.actions;
 
 export const selectProjectsState = (state: RootState) => state.projects;
 export const selectProject = (state: RootState, id: string) =>

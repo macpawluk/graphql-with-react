@@ -7,12 +7,12 @@ import {
   Link,
   Typography,
 } from '@mui/material';
-import { History } from 'history';
 import qs from 'query-string';
 import React, { useEffect } from 'react';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { Project } from '../../models';
+import { setQueryParam } from './../../shared';
 import { AddEditProjectDialog } from './AddEditProjectDialog';
 import { ProjectItem } from './ProjectItem';
 import { addProject, editProject } from './projectsApi';
@@ -72,6 +72,7 @@ export function ProjectsList() {
   const handleEditClick = (project: Project) => {
     setQueryParam(history, ProjectsConsts.ProjectIdParam, project.id);
   };
+
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex' }}>
@@ -125,20 +126,4 @@ const getViewQueryParams = () => {
     projectId: queryParams?.projectId ?? '',
     addProject: queryParams.addProject?.toLocaleLowerCase() === 'true',
   };
-};
-
-const setQueryParam = <T extends { toString(): string }>(
-  history: History<unknown>,
-  paramName: string,
-  value: T | null
-) => {
-  const params = new URLSearchParams();
-
-  if (value) {
-    params.append(paramName, value.toString());
-    history.push({ search: params.toString() });
-  } else {
-    params.delete(paramName);
-    history.push({ search: params.toString() });
-  }
 };

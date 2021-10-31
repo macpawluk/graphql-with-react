@@ -82,7 +82,9 @@ db2.getCollection("issues").insertMany(
         {
             "_id": new ObjectId(),
             "name": "Pretty serious bug",
+            "description": "That's a bug with a high priority, but I won't give you steps to reproduce ;-)",
             "type": 2,
+			"status": 1,
             "project": {
                 "_id": frontEndApp._id,
                 "name": frontEndApp.name
@@ -91,7 +93,9 @@ db2.getCollection("issues").insertMany(
         {
             "_id": new ObjectId(),
             "name": "Nice improvement",
+            "description": "World is going to be so much better once you put that in!",
             "type": 4,
+			"status": 1,
             "project": {
                 "_id": frontEndApp._id,
                 "name": frontEndApp.name
@@ -100,7 +104,9 @@ db2.getCollection("issues").insertMany(
         {
             "_id": new ObjectId(),
             "name": "Regular story",
+            "description": "And some button there and don't ask further questions :-)",
             "type": 3,
+			"status": 1,
             "project": {
                 "_id": frontEndApp._id,
                 "name": frontEndApp.name

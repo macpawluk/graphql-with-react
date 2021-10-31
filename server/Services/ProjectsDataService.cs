@@ -89,12 +89,22 @@ namespace MyPlays.GraphQlWebApi.Services
             return issues.ToArray();
         }
 
+        public async Task<T> GetEntityByIdAsync<T>(string id)
+            where T : EntityWithId
+        {
+            var database = GetDatabase();
+            var issuesCollection = database.GetDBCollection<T>();
+            var entity = await (await issuesCollection.FindAsync(x => x.Id == id)).FirstOrDefaultAsync();
+
+            return entity;
+        }
+
         public async Task DeleteEnityById<T>(string id)
             where T : EntityWithId
         {
             var database = GetDatabase();
             var projectsCollection = database.GetDBCollection<T>();
-            await projectsCollection.DeleteOneAsync(p => p.Id == id);
+            await projectsCollection.DeleteOneAsync(x => x.Id == id);
         }
 
         public async Task<T> UpdateEnityById<T>(string id, Func<UpdateDefinitionBuilder<T>, UpdateDefinition<T>> updateCallback)

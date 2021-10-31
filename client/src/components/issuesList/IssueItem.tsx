@@ -1,4 +1,5 @@
 import BugReportIcon from '@mui/icons-material/BugReport';
+import DeleteIcon from '@mui/icons-material/Delete';
 import DescriptionIcon from '@mui/icons-material/Description';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import {
@@ -7,11 +8,17 @@ import {
   CardActions,
   CardContent,
   createTheme,
+  IconButton,
   ThemeProvider,
   Typography,
 } from '@mui/material';
 import { green, grey, red } from '@mui/material/colors';
+import React, { useState } from 'react';
+import { useAppDispatch } from '../../app/hooks';
 import { Issue } from '../../models';
+import { MessageBox } from './../../shared';
+import { removeIssue as removeIssueFromStore } from './../projectsList/projectsSlice';
+import { removeIssue } from './issuesApi';
 
 const theme = createTheme({
   components: {
@@ -30,8 +37,14 @@ const theme = createTheme({
   },
 });
 
-export function IssueItem(props: { issue: Issue }) {
-  const { issue } = props;
+export function IssueItem(props: {
+  issue: Issue;
+  projectId: string;
+  onEditClick: (issue: Issue) => void;
+}) {
+  const { issue, projectId, onEditClick } = props;
+  const [openRemoveMessageBox, setOpenRemoveMessageBox] = useState(false);
+  const dispatch = useAppDispatch();
 
   const getIssueTypeName = (issueType: Issue['type']) => {
     switch (issueType) {
@@ -80,36 +93,73 @@ export function IssueItem(props: { issue: Issue }) {
     }
   };
 
-  return (
-    <Card sx={{ mb: 2, mr: 2, width: 272 }}>
-      <CardContent sx={{ height: 120 }}>
-        <div style={{ display: 'flex' }}>
-          <div style={{ flexGrow: 1 }}>
-            <Typography
-              sx={{ fontSize: 14 }}
-              color="text.secondary"
-              gutterBottom
-            >
-              Issue
-            </Typography>
-            <Typography variant="h5" component="div">
-              {issue.name}
-            </Typography>
-          </div>
+  const handleDeleteMessageBoxClose = async (result: boolean) => {
+    setOpenRemoveMessageBox(false);
 
-          <ThemeProvider theme={theme}>
-            {getIssueIcon(issue.type)}
-          </ThemeProvider>
-        </div>
-        <Typography variant="body2">{getIssueTypeName(issue.type)}</Typography>
-      </CardContent>
-      <CardActions>
-        <div style={{ display: 'flex', width: '100%' }}>
-          <div style={{ flexGrow: 1 }}>
-            <Button>Edit</Button>
-          </div>
-        </div>
-      </CardActions>
-    </Card>
+    if (result === true) {
+      await removeIssue(issue.id);
+      dispatch(removeIssueFromStore({ projectId, issueId: issue.id }));
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setOpenRemoveMessageBox(true);
+  };
+
+  return (
+    <React.Fragment>
+      <ThemeProvider theme={theme}>
+        <Card sx={{ mb: 2, mr: 2, width: 272 }}>
+          <CardContent sx={{ height: 120 }}>
+            <div style={{ display: 'flex' }}>
+              <div style={{ flexGrow: 1 }}>
+                <Typography
+                  sx={{ fontSize: 14 }}
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Issue
+                </Typography>
+                <Typography variant="h5" component="div">
+                  {issue.name}
+                </Typography>
+              </div>
+
+              {getIssueIcon(issue.type)}
+            </div>
+            <Typography variant="body2">
+              {getIssueTypeName(issue.type)}
+            </Typography>
+          </CardContent>
+          <CardActions>
+            <div style={{ display: 'flex', width: '100%' }}>
+              <div style={{ flexGrow: 1 }}>
+                <Button onClick={() => onEditClick(issue)}>Edit</Button>
+              </div>
+
+              <IconButton
+                aria-label="delete"
+                size="small"
+                className="on-hover-show"
+                onClick={handleDeleteClick}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </div>
+          </CardActions>
+        </Card>
+      </ThemeProvider>
+
+      <MessageBox
+        open={openRemoveMessageBox}
+        header="Issue"
+        content={`Are you sure you want to permanently remove "${issue.name}"?`}
+        okButtonCaption="Yes"
+        okButtonColor="error"
+        okButtonVariant="contained"
+        cancelButtonCaption="No"
+        onClose={handleDeleteMessageBoxClose}
+      ></MessageBox>
+    </React.Fragment>
   );
 }

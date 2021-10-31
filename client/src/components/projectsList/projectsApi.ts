@@ -38,7 +38,9 @@ const querySingle = (id: string) => `
             items {
                 id,
                 name,
-                type
+                description,
+                type,
+                status
             }
         }
       }
@@ -50,21 +52,34 @@ export async function fetchProjectDetails(id: string): Promise<Project> {
   return result.project;
 }
 
-const removeProjectMutation = `
-    mutation ($project:EntityIDInput!) {
-      removeProject(project: $project) {
+const addProjectMutation = `
+    mutation ($project:ProjectInsertInput!) {
+      addProject(project: $project) {
         id,
-        name
+        name,
+        abbreviation,
+        description,
+        color
       }
     }
 `;
 
-export async function removeProject(id: string): Promise<Project> {
-  const result = await graphQlMutate<{ removeProject: Project }>(
-    removeProjectMutation,
-    { project: { id } }
+export async function addProject(project: Project): Promise<Project> {
+  const { id, name, abbreviation, description, color } = project;
+
+  const result = await graphQlMutate<{ addProject: Project }>(
+    addProjectMutation,
+    {
+      project: {
+        id,
+        name,
+        abbreviation,
+        description,
+        color,
+      },
+    }
   );
-  return result.removeProject;
+  return result.addProject;
 }
 
 const editProjectMutation = `
@@ -97,32 +112,19 @@ export async function editProject(project: Project): Promise<Project> {
   return result.editProject;
 }
 
-const addProjectMutation = `
-    mutation ($project:ProjectInsertInput!) {
-      addProject(project: $project) {
+const removeProjectMutation = `
+    mutation ($project:EntityIDInput!) {
+      removeProject(project: $project) {
         id,
-        name,
-        abbreviation,
-        description,
-        color
+        name
       }
     }
 `;
 
-export async function addProject(project: Project): Promise<Project> {
-  const { id, name, abbreviation, description, color } = project;
-
-  const result = await graphQlMutate<{ addProject: Project }>(
-    addProjectMutation,
-    {
-      project: {
-        id,
-        name,
-        abbreviation,
-        description,
-        color,
-      },
-    }
+export async function removeProject(id: string): Promise<Project> {
+  const result = await graphQlMutate<{ removeProject: Project }>(
+    removeProjectMutation,
+    { project: { id } }
   );
-  return result.addProject;
+  return result.removeProject;
 }

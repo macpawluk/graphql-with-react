@@ -1,5 +1,7 @@
 export interface Issue {
   id: string;
   name: string;
-  type: 'BUG' | 'IMPROVEMENT' | 'STORY';
+  description: string;
+  type: 'TASK' | 'BUG' | 'IMPROVEMENT' | 'STORY';
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'PAUSED' | 'COMPLETED';
 }

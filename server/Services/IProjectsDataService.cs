@@ -14,6 +14,9 @@ namespace MyPlays.GraphQlWebApi.Services
 
         Task<IReadOnlyCollection<Issue>> GetIssuesByIdsAsync(List<string> ids);
 
+        Task<T> GetEntityByIdAsync<T>(string id)
+            where T : EntityWithId;
+
         Task DeleteEnityById<T>(string id)
             where T : EntityWithId;
 

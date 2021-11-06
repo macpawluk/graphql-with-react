@@ -9,10 +9,10 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { usePrevious } from '../../app/hooks';
 import { Issue } from '../../models';
 import { SlideTransition } from './../../shared/Transitions';
 
@@ -23,48 +23,20 @@ interface DialogProps {
   onClose: (result: boolean, issue: Issue) => void;
 }
 
-interface DialogState {
-  name: string;
-  nameError: string;
-  description: string;
-  descriptionError: string;
-  type: Issue['type'];
-  status: Issue['status'];
-}
-
-const getInitState = (): DialogState => ({
-  name: '',
-  nameError: '',
-  description: '',
-  descriptionError: '',
-  type: 'TASK',
-  status: 'NOT_STARTED',
-});
+type InputEventArgs = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>;
 
 export function AddEditIssueDialog(props: DialogProps) {
   const { open, mode, onClose, issue } = props;
-
-  const prevValues = usePrevious({ open, issue });
-  const [dialogState, setDialogState] = useState<DialogState>(getInitState());
-
-  useEffect(() => {
-    if (open !== prevValues?.open) {
-      if (open) {
-        setDialogState({
-          name: issue?.name ?? '',
-          nameError: '',
-          description: issue?.description ?? '',
-          descriptionError: '',
-          type: issue?.type ?? 'TASK',
-          status: issue?.status ?? 'NOT_STARTED',
-        });
-      } else {
-        setDialogState(getInitState());
-      }
-    }
-  }, [issue, open]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const hasError = !!dialogState.nameError || !!dialogState.descriptionError;
+  const {
+    handleTypeChanged,
+    handleStatusChanged,
+    handleNameChanged,
+    handleDescriptionChanged,
+    hasError,
+    errors: { nameError, descriptionError },
+    validateAll,
+    editedIssueProps,
+  } = useEditIssueForm({ issue: issue as Issue, open });
 
   const title = mode === 'Add' ? 'Add Issue' : 'Edit Issue';
 
@@ -78,44 +50,17 @@ export function AddEditIssueDialog(props: DialogProps) {
       return;
     }
 
-    const isValid = validateAll(dialogState);
+    const isValid = validateAll();
     if (!isValid) {
       return;
     }
 
-    const newIssue = {
+    const editedIssue = {
       ...issue,
-      name: dialogState.name,
-      description: dialogState.description,
-      type: dialogState.type,
-      status: dialogState.status,
-    };
-    onClose(result, newIssue as Issue);
-  };
+      ...editedIssueProps,
+    } as Issue;
 
-  const handleNameChanged = (newValue: string) => {
-    setDialogState({ ...validateName(dialogState, newValue), name: newValue });
-  };
-
-  const handleDescriptionChanged = (newValue: string) => {
-    setDialogState({
-      ...validateDescription(dialogState, newValue),
-      description: newValue,
-    });
-  };
-
-  const handleTypeChanged = (newValue: Issue['type']) => {
-    setDialogState({
-      ...dialogState,
-      type: newValue,
-    });
-  };
-
-  const handleStatusChanged = (newValue: Issue['status']) => {
-    setDialogState({
-      ...dialogState,
-      status: newValue,
-    });
+    onClose(result, editedIssue);
   };
 
   const handleDialogKeyUp = (e: { keyCode: number }) => {
@@ -124,39 +69,6 @@ export function AddEditIssueDialog(props: DialogProps) {
     if (e.keyCode === enter) {
       handleClose(true);
     }
-  };
-
-  const validateName = (state: DialogState, value?: string): DialogState => {
-    const name = value !== undefined ? value : state.name;
-    const error = !name ? 'Name is required' : '';
-
-    return {
-      ...state,
-      nameError: error,
-    };
-  };
-
-  const validateDescription = (
-    state: DialogState,
-    value?: string
-  ): DialogState => {
-    const description = value !== undefined ? value : state.description;
-    const error = !description ? 'Description is required' : '';
-
-    return {
-      ...state,
-      descriptionError: error,
-    };
-  };
-
-  const validateAll = (state: DialogState) => {
-    let validatedState = validateName(state);
-    validatedState = validateDescription(validatedState);
-
-    setDialogState(validatedState);
-
-    const { nameError, descriptionError } = validatedState;
-    return !nameError && !descriptionError;
   };
 
   return (
@@ -178,10 +90,8 @@ export function AddEditIssueDialog(props: DialogProps) {
             <Select
               labelId="type-label"
               id="type-select"
-              value={dialogState.type}
-              onChange={(e) =>
-                handleTypeChanged(e.target.value as Issue['type'])
-              }
+              value={editedIssueProps.type}
+              onChange={handleTypeChanged}
               label="Type"
             >
               <MenuItem value="TASK">Task</MenuItem>
@@ -197,10 +107,8 @@ export function AddEditIssueDialog(props: DialogProps) {
             <Select
               labelId="status-label"
               id="status-select"
-              value={dialogState.status}
-              onChange={(e) =>
-                handleStatusChanged(e.target.value as Issue['status'])
-              }
+              value={editedIssueProps.status}
+              onChange={handleStatusChanged}
               label="Status"
             >
               <MenuItem value="NOT_STARTED">Not Started</MenuItem>
@@ -215,25 +123,25 @@ export function AddEditIssueDialog(props: DialogProps) {
           id="name"
           margin="dense"
           label="Name"
-          value={dialogState.name}
-          error={!!dialogState.nameError}
-          helperText={dialogState.nameError}
+          value={editedIssueProps.name}
+          error={!!nameError}
+          helperText={nameError}
           type="text"
           fullWidth
           variant="standard"
-          onChange={(e) => handleNameChanged(e.target.value)}
+          onChange={handleNameChanged}
         />
         <TextField
           id="description"
           margin="dense"
           label="Description"
-          value={dialogState.description}
-          error={!!dialogState.descriptionError}
-          helperText={dialogState.descriptionError}
+          value={editedIssueProps.description}
+          error={!!descriptionError}
+          helperText={descriptionError}
           type="text"
           fullWidth
           variant="standard"
-          onChange={(e) => handleDescriptionChanged(e.target.value)}
+          onChange={handleDescriptionChanged}
         />
       </DialogContent>
       <DialogActions sx={{ mx: 2, mt: 4, mb: 1 }}>
@@ -257,3 +165,89 @@ export function AddEditIssueDialog(props: DialogProps) {
     </Dialog>
   );
 }
+
+const useEditIssueForm = ({ issue, open }: { issue: Issue; open: boolean }) => {
+  const [type, setType] = useState<Issue['type']>(issue?.type ?? 'TASK');
+  const [status, setStatus] = useState<Issue['status']>(
+    issue?.status ?? 'NOT_STARTED'
+  );
+  const [name, setName] = useState(issue?.name ?? '');
+  const [nameError, setNameError] = useState('');
+  const [description, setDescription] = useState(issue?.description ?? '');
+  const [descriptionError, setDescriptionError] = useState('');
+
+  const hasError = !!nameError || !!descriptionError;
+
+  const handleTypeChanged = (event: SelectChangeEvent<Issue['type']>) => {
+    setType(event.target.value as Issue['type']);
+  };
+
+  const handleStatusChanged = (event: SelectChangeEvent<Issue['status']>) => {
+    setStatus(event.target.value as Issue['status']);
+  };
+
+  const handleNameChanged = (event: InputEventArgs) => {
+    const value = event.target.value;
+
+    setName(value);
+    setNameError(getNameError(value));
+  };
+
+  const handleDescriptionChanged = (event: InputEventArgs) => {
+    const value = event.target.value;
+
+    setDescription(value);
+    setDescriptionError(getDescriptionError(value));
+  };
+
+  const validateAll = () => {
+    const nameError = getNameError();
+    const descriptionError = getDescriptionError();
+
+    setNameError(nameError);
+    setDescriptionError(descriptionError);
+
+    return !nameError && !descriptionError;
+  };
+
+  const getNameError = (value?: string) => {
+    const valueToValidate = value === undefined ? name : value;
+    return !valueToValidate ? 'Name is required' : '';
+  };
+
+  const getDescriptionError = (value?: string) => {
+    const valueToValidate = value === undefined ? description : value;
+    return !valueToValidate ? 'Description is required' : '';
+  };
+
+  useEffect(() => {
+    if (open) {
+      setType(issue?.type ?? 'TASK');
+      setStatus(issue?.status ?? 'NOT_STARTED');
+      setName(issue?.name ?? '');
+      setDescription(issue?.description ?? '');
+
+      setNameError('');
+      setDescriptionError('');
+    }
+  }, [issue, open]);
+
+  return {
+    errors: {
+      nameError,
+      descriptionError,
+    },
+    hasError,
+    handleTypeChanged,
+    handleStatusChanged,
+    handleNameChanged,
+    handleDescriptionChanged,
+    validateAll,
+    editedIssueProps: {
+      type,
+      status,
+      name,
+      description,
+    },
+  } as const;
+};

@@ -95,8 +95,8 @@ export function ProjectsList() {
 
       <Grid container spacing={2}>
         {projects.map((p) => (
-          <Grid item xs={3} sx={{ height: 220 }}>
-            <ProjectItem key={p.id} project={p} onEditClick={handleEditClick} />
+          <Grid item xs={3} sx={{ height: 220 }} key={p.id}>
+            <ProjectItem project={p} onEditClick={handleEditClick} />
           </Grid>
         ))}
       </Grid>

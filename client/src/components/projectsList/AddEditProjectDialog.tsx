@@ -10,9 +10,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ColorResult, SliderPicker } from 'react-color';
-import { usePrevious } from '../../app/hooks';
 import { Project } from '../../models';
 import { SlideTransition } from './../../shared/Transitions';
 
@@ -23,56 +22,24 @@ interface DialogProps {
   onClose: (result: boolean, project: Project) => void;
 }
 
-interface DialogState {
-  name: string;
-  nameError: string;
-  abbreviation: string;
-  abbreviationError: string;
-  description: string;
-  descriptionError: string;
-  color: string;
-  colorPopoverAnchor?: HTMLButtonElement;
-}
-
+type InputEventArgs = React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>;
 const defaultColor = '#4054bf';
-const getInitState = () => ({
-  name: '',
-  nameError: '',
-  abbreviation: '',
-  abbreviationError: '',
-  description: '',
-  descriptionError: '',
-  color: defaultColor,
-});
 
 export function AddEditProjectDialog(props: DialogProps) {
   const { open, mode, onClose, project } = props;
-
-  const prevValues = usePrevious({ open, project });
-  const [dialogState, setDialogState] = useState<DialogState>(getInitState());
-
-  useEffect(() => {
-    if (open !== prevValues?.open) {
-      if (open) {
-        setDialogState({
-          name: project?.name ?? '',
-          nameError: '',
-          abbreviation: project?.abbreviation ?? '',
-          abbreviationError: '',
-          description: project?.description ?? '',
-          descriptionError: '',
-          color: project?.color ?? defaultColor,
-        });
-      } else {
-        setDialogState(getInitState());
-      }
-    }
-  }, [project, open]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const hasError =
-    !!dialogState.nameError ||
-    !!dialogState.abbreviationError ||
-    !!dialogState.descriptionError;
+  const [colorPopoverAnchor, setColorPopoverAnchor] = useState<
+    HTMLButtonElement | undefined
+  >(undefined);
+  const {
+    handleNameChanged,
+    handleAbbreviationChanged,
+    handleColorChange,
+    handleDescriptionChanged,
+    hasError,
+    errors: { nameError, abbreviationError, descriptionError },
+    validateAll,
+    editedProjectProps,
+  } = useEditProjectForm({ project: project as Project, open });
 
   const title = mode === 'Add' ? 'Add Project' : 'Edit Project';
 
@@ -86,37 +53,17 @@ export function AddEditProjectDialog(props: DialogProps) {
       return;
     }
 
-    const isValid = validateAll(dialogState);
+    const isValid = validateAll();
     if (!isValid) {
       return;
     }
 
-    const newProject = {
+    const editedProject = {
       ...project,
-      name: dialogState.name,
-      abbreviation: dialogState.abbreviation,
-      description: dialogState.description,
-      color: dialogState.color,
-    };
-    onClose(result, newProject as Project);
-  };
+      ...editedProjectProps,
+    } as Project;
 
-  const handleNameChanged = (newValue: string) => {
-    setDialogState({ ...validateName(dialogState, newValue), name: newValue });
-  };
-
-  const handleAbbreviationChanged = (newValue: string) => {
-    setDialogState({
-      ...validateAbbreviation(dialogState, newValue),
-      abbreviation: newValue,
-    });
-  };
-
-  const handleDescriptionChanged = (newValue: string) => {
-    setDialogState({
-      ...validateDescription(dialogState, newValue),
-      description: newValue,
-    });
+    onClose(result, editedProject);
   };
 
   const handleDialogKeyUp = (e: { keyCode: number }) => {
@@ -127,77 +74,14 @@ export function AddEditProjectDialog(props: DialogProps) {
     }
   };
 
-  const handleColorChange = (result: ColorResult) => {
-    setDialogState({
-      ...dialogState,
-      color: result.hex,
-    });
-  };
-
   const handleOpenColorPopover = (
-    event: React.MouseEvent<HTMLButtonElement>
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    setDialogState({
-      ...dialogState,
-      colorPopoverAnchor: event.currentTarget,
-    });
+    setColorPopoverAnchor(event.currentTarget);
   };
 
   const handleCloseColorPopover = () => {
-    setDialogState({
-      ...dialogState,
-      colorPopoverAnchor: undefined,
-    });
-  };
-
-  const validateName = (state: DialogState, value?: string): DialogState => {
-    const name = value !== undefined ? value : state.name;
-    const error = !name ? 'Name is required' : '';
-
-    return {
-      ...state,
-      nameError: error,
-    };
-  };
-
-  const validateDescription = (
-    state: DialogState,
-    value?: string
-  ): DialogState => {
-    const description = value !== undefined ? value : state.description;
-    const error = !description ? 'Description is required' : '';
-
-    return {
-      ...state,
-      descriptionError: error,
-    };
-  };
-
-  const validateAbbreviation = (
-    state: DialogState,
-    value?: string
-  ): DialogState => {
-    const abbreviation = value !== undefined ? value : state.abbreviation;
-    let error = !abbreviation ? 'Abbreviation is required' : '';
-    if (abbreviation.length > 2) {
-      error = 'Abbreviation cannot have more than 2 characters';
-    }
-
-    return {
-      ...state,
-      abbreviationError: error,
-    };
-  };
-
-  const validateAll = (state: DialogState) => {
-    let validatedState = validateName(state);
-    validatedState = validateDescription(validatedState);
-    validatedState = validateAbbreviation(validatedState);
-
-    setDialogState(validatedState);
-
-    const { nameError, descriptionError, abbreviationError } = validatedState;
-    return !nameError && !descriptionError && !abbreviationError;
+    setColorPopoverAnchor(undefined);
   };
 
   return (
@@ -218,38 +102,38 @@ export function AddEditProjectDialog(props: DialogProps) {
           id="name"
           margin="dense"
           label="Name"
-          value={dialogState.name}
-          error={!!dialogState.nameError}
-          helperText={dialogState.nameError}
+          value={editedProjectProps.name}
+          error={!!nameError}
+          helperText={nameError}
           type="text"
           fullWidth
           variant="standard"
-          onChange={(e) => handleNameChanged(e.target.value)}
+          onChange={handleNameChanged}
         />
         <TextField
           id="abbreviation"
           margin="dense"
           label="Abbreviation"
-          value={dialogState.abbreviation}
-          error={!!dialogState.abbreviationError}
-          helperText={dialogState.abbreviationError}
+          value={editedProjectProps.abbreviation}
+          error={!!abbreviationError}
+          helperText={abbreviationError}
           type="text"
           fullWidth
           variant="standard"
-          onChange={(e) => handleAbbreviationChanged(e.target.value)}
+          onChange={handleAbbreviationChanged}
         />
         <TextField
           id="description"
           margin="dense"
           label="Description"
-          value={dialogState.description}
-          error={!!dialogState.descriptionError}
-          helperText={dialogState.descriptionError}
+          value={editedProjectProps.description}
+          error={!!descriptionError}
+          helperText={descriptionError}
           type="text"
           fullWidth
           variant="standard"
           sx={{ mb: 2 }}
-          onChange={(e) => handleDescriptionChanged(e.target.value)}
+          onChange={handleDescriptionChanged}
         />
 
         <InputLabel shrink={true} htmlFor="colorPicker">
@@ -261,7 +145,7 @@ export function AddEditProjectDialog(props: DialogProps) {
               style={{
                 width: 15,
                 height: 15,
-                backgroundColor: dialogState.color,
+                backgroundColor: editedProjectProps.color,
                 borderRadius: 3,
               }}
             ></div>
@@ -272,8 +156,8 @@ export function AddEditProjectDialog(props: DialogProps) {
         </Button>
         <Popover
           id="simple-popover"
-          open={!!dialogState.colorPopoverAnchor}
-          anchorEl={dialogState.colorPopoverAnchor}
+          open={!!colorPopoverAnchor}
+          anchorEl={colorPopoverAnchor}
           onClose={handleCloseColorPopover}
           anchorOrigin={{
             vertical: 'top',
@@ -283,7 +167,7 @@ export function AddEditProjectDialog(props: DialogProps) {
           <Box sx={{ width: 300, padding: 2 }}>
             <SliderPicker
               key="colorPicker"
-              color={dialogState.color}
+              color={editedProjectProps.color}
               onChange={handleColorChange}
             />
           </Box>
@@ -310,3 +194,112 @@ export function AddEditProjectDialog(props: DialogProps) {
     </Dialog>
   );
 }
+
+const useEditProjectForm = ({
+  project,
+  open,
+}: {
+  project: Project;
+  open: boolean;
+}) => {
+  const [name, setName] = useState(project?.name ?? '');
+  const [nameError, setNameError] = useState('');
+  const [abbreviation, setAbbreviation] = useState(project?.abbreviation ?? '');
+  const [abbreviationError, setAbbreviationError] = useState('');
+  const [description, setDescription] = useState(project?.description ?? '');
+  const [descriptionError, setDescriptionError] = useState('');
+  const [color, setColor] = useState(project?.color ?? defaultColor);
+
+  const hasError = !!nameError || !!abbreviationError || !!descriptionError;
+
+  const handleNameChanged = (event: InputEventArgs) => {
+    const value = event.target.value;
+
+    setName(value);
+    setNameError(getNameError(value));
+  };
+
+  const handleAbbreviationChanged = (event: InputEventArgs) => {
+    const value = event.target.value;
+
+    setAbbreviation(value);
+    setAbbreviationError(getAbbreviationError(value));
+  };
+
+  const handleDescriptionChanged = (event: InputEventArgs) => {
+    const value = event.target.value;
+
+    setDescription(value);
+    setDescriptionError(getDescriptionError(value));
+  };
+
+  const handleColorChange = (result: ColorResult) => {
+    setColor(result.hex);
+  };
+
+  const validateAll = () => {
+    const nameError = getNameError();
+    const abbreviationError = getAbbreviationError();
+    const descriptionError = getDescriptionError();
+
+    setNameError(nameError);
+    setAbbreviationError(abbreviationError);
+    setDescriptionError(descriptionError);
+
+    return !nameError && !abbreviationError && !descriptionError;
+  };
+
+  const getNameError = (value?: string) => {
+    const valueToValidate = value === undefined ? name : value;
+    return !valueToValidate ? 'Name is required' : '';
+  };
+
+  const getAbbreviationError = (value?: string) => {
+    const valueToValidate = value === undefined ? abbreviation : value;
+    if (!valueToValidate) {
+      return 'Abbreviation is required';
+    }
+    if (valueToValidate.length > 2) {
+      return 'Abbreviation cannot have more than 2 characters';
+    }
+    return '';
+  };
+
+  const getDescriptionError = (value?: string) => {
+    const valueToValidate = value === undefined ? description : value;
+    return !valueToValidate ? 'Description is required' : '';
+  };
+
+  useEffect(() => {
+    if (open) {
+      setName(project?.name ?? '');
+      setAbbreviation(project?.abbreviation ?? '');
+      setDescription(project?.description ?? '');
+      setColor(project?.color ?? defaultColor);
+
+      setNameError('');
+      setAbbreviationError('');
+      setDescriptionError('');
+    }
+  }, [project, open]);
+
+  return {
+    errors: {
+      nameError,
+      abbreviationError,
+      descriptionError,
+    },
+    hasError,
+    handleNameChanged,
+    handleAbbreviationChanged,
+    handleDescriptionChanged,
+    handleColorChange,
+    validateAll,
+    editedProjectProps: {
+      name,
+      abbreviation,
+      description,
+      color,
+    },
+  } as const;
+};

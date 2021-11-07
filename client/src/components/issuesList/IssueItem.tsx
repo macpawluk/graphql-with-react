@@ -1,8 +1,11 @@
+import { makeStyles } from '@material-ui/core/styles';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DescriptionIcon from '@mui/icons-material/Description';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import {
+  Box,
   Button,
   Card,
   CardActions,
@@ -12,7 +15,7 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material';
-import { green, grey, red } from '@mui/material/colors';
+import { blue, green, grey, red } from '@mui/material/colors';
 import React, { useState } from 'react';
 import { useAppDispatch } from '../../app/hooks';
 import { Issue } from '../../models';
@@ -37,6 +40,17 @@ const theme = createTheme({
   },
 });
 
+const useStyles = makeStyles({
+  multilineText: {
+    overflow: 'hidden',
+    display: '-webkit-box',
+    'text-overflow': 'ellipsis',
+    '-webkit-line-clamp': 2,
+    'line-clamp': 2,
+    '-webkit-box-orient': 'vertical',
+  },
+});
+
 export function IssueItem(props: {
   issue: Issue;
   projectId: string;
@@ -45,53 +59,6 @@ export function IssueItem(props: {
   const { issue, projectId, onEditClick } = props;
   const [openRemoveMessageBox, setOpenRemoveMessageBox] = useState(false);
   const dispatch = useAppDispatch();
-
-  const getIssueTypeName = (issueType: Issue['type']) => {
-    switch (issueType) {
-      case 'BUG':
-        return 'Bug';
-
-      case 'IMPROVEMENT':
-        return 'Improvement';
-
-      case 'STORY':
-        return 'Story';
-
-      default:
-        return '';
-    }
-  };
-
-  const getIssueIcon = (issueType: Issue['type']) => {
-    switch (issueType) {
-      case 'BUG':
-        return (
-          <BugReportIcon
-            fontSize="small"
-            sx={{ flexGrow: 0, color: red[600] }}
-          />
-        );
-
-      case 'IMPROVEMENT':
-        return (
-          <NewReleasesIcon
-            fontSize="small"
-            sx={{ flexGrow: 0, color: green[600] }}
-          />
-        );
-
-      case 'STORY':
-        return (
-          <DescriptionIcon
-            fontSize="small"
-            sx={{ flexGrow: 0, color: grey[700] }}
-          />
-        );
-
-      default:
-        return null;
-    }
-  };
 
   const handleDeleteMessageBoxClose = async (result: boolean) => {
     setOpenRemoveMessageBox(false);
@@ -106,30 +73,55 @@ export function IssueItem(props: {
     setOpenRemoveMessageBox(true);
   };
 
+  const accentColor = getIssueAccentColor(issue.type);
+  const classes = useStyles();
+
   return (
     <React.Fragment>
       <ThemeProvider theme={theme}>
-        <Card sx={{ mb: 2, mr: 2, width: 272 }}>
-          <CardContent sx={{ height: 120 }}>
-            <div style={{ display: 'flex' }}>
-              <div style={{ flexGrow: 1 }}>
-                <Typography
-                  sx={{ fontSize: 14 }}
-                  color="text.secondary"
-                  gutterBottom
+        <Card sx={{ mb: 2, mr: 2, width: 270 }}>
+          <CardContent sx={{ padding: 0 }}>
+            <Box sx={{ height: 140 }}>
+              <div>
+                <Box
+                  sx={{
+                    px: 2,
+                    pt: 1,
+                    mb: 1,
+                    borderBottom: '2px solid',
+                    borderImageSlice: 1,
+                    borderImageSource: `linear-gradient(to left, ${accentColor['500']}, ${accentColor['100']})`,
+                    display: 'flex',
+                  }}
                 >
-                  Issue
-                </Typography>
-                <Typography variant="h5" component="div">
-                  {issue.name}
-                </Typography>
-              </div>
+                  <Typography
+                    variant="body2"
+                    sx={{ flexGrow: 1 }}
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    {getIssueTypeName(issue.type)}
+                  </Typography>
 
-              {getIssueIcon(issue.type)}
-            </div>
-            <Typography variant="body2">
-              {getIssueTypeName(issue.type)}
-            </Typography>
+                  {getIssueIcon(issue.type)}
+                </Box>
+              </div>
+              <Typography variant="subtitle1" noWrap sx={{ px: 2 }}>
+                {issue.name}
+              </Typography>
+              <Typography
+                variant="body2"
+                component="div"
+                className={classes.multilineText}
+                sx={{
+                  px: 2,
+                  pt: 1,
+                  color: 'text.secondary',
+                }}
+              >
+                {issue.description}
+              </Typography>
+            </Box>
           </CardContent>
           <CardActions>
             <div style={{ display: 'flex', width: '100%' }}>
@@ -163,3 +155,79 @@ export function IssueItem(props: {
     </React.Fragment>
   );
 }
+
+const getIssueAccentColor = (issueType: Issue['type']) => {
+  switch (issueType) {
+    case 'BUG':
+      return red;
+
+    case 'IMPROVEMENT':
+      return green;
+
+    case 'STORY':
+      return blue;
+
+    default:
+      return grey;
+  }
+};
+
+const getIssueTypeName = (issueType: Issue['type']) => {
+  switch (issueType) {
+    case 'BUG':
+      return 'Bug';
+
+    case 'IMPROVEMENT':
+      return 'Improvement';
+
+    case 'STORY':
+      return 'Story';
+
+    case 'TASK':
+      return 'Task';
+
+    default:
+      return '';
+  }
+};
+
+const getIssueIcon = (issueType: Issue['type']) => {
+  const accentColor = getIssueAccentColor(issueType);
+
+  switch (issueType) {
+    case 'BUG':
+      return (
+        <BugReportIcon
+          fontSize="small"
+          sx={{ flexGrow: 0, color: accentColor[600] }}
+        />
+      );
+
+    case 'IMPROVEMENT':
+      return (
+        <NewReleasesIcon
+          fontSize="small"
+          sx={{ flexGrow: 0, color: accentColor[600] }}
+        />
+      );
+
+    case 'STORY':
+      return (
+        <DescriptionIcon
+          fontSize="small"
+          sx={{ flexGrow: 0, color: accentColor[700] }}
+        />
+      );
+
+    case 'TASK':
+      return (
+        <AssignmentIcon
+          fontSize="small"
+          sx={{ flexGrow: 0, color: accentColor[700] }}
+        />
+      );
+
+    default:
+      return null;
+  }
+};

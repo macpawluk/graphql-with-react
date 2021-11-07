@@ -135,6 +135,8 @@ export function AddEditIssueDialog(props: DialogProps) {
           id="description"
           margin="dense"
           label="Description"
+          multiline
+          minRows={3}
           value={editedIssueProps.description}
           error={!!descriptionError}
           helperText={descriptionError}

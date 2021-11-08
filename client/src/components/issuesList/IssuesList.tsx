@@ -1,5 +1,13 @@
 import AddIcon from '@mui/icons-material/Add';
-import { Box, Breadcrumbs, Button, Link, Typography } from '@mui/material';
+import {
+  Box,
+  Breadcrumbs,
+  Button,
+  Chip,
+  Grid,
+  Link,
+  Typography,
+} from '@mui/material';
 import qs from 'query-string';
 import React, { useEffect } from 'react';
 import { Link as RouterLink, useHistory, useParams } from 'react-router-dom';
@@ -9,8 +17,8 @@ import { Project } from './../../models/project';
 import { setQueryParam } from './../../shared';
 import { ProjectsConsts, selectProject } from './../projectsList';
 import {
-  getSingleProjectsAsync,
   addIssue as addIssueToStore,
+  getSingleProjectsAsync,
   updateIssue as updateIssueInStore,
 } from './../projectsList/projectsSlice';
 import { AddEditIssueDialog } from './AddEditIssueDialog';
@@ -18,6 +26,7 @@ import { IssueItem } from './IssueItem';
 import { addIssue, editIssue } from './issuesApi';
 import { IssuesConsts } from './issuesConsts';
 
+//vvv add drag and drop to change the status
 export function IssuesList() {
   const { id: projectId } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
@@ -33,6 +42,12 @@ export function IssuesList() {
   const issueForEdit = project?.issuesConnection?.items?.find(
     (i) => i.id === viewParams.issueId
   ) as Issue;
+
+  const allIssues = project?.issuesConnection?.items ?? [];
+  const notStartedIssues = getIssuesByStatus(allIssues, 'NOT_STARTED');
+  const startedIssues = getIssuesByStatus(allIssues, 'IN_PROGRESS');
+  const pausedIssues = getIssuesByStatus(allIssues, 'PAUSED');
+  const completedIssues = getIssuesByStatus(allIssues, 'COMPLETED');
 
   useEffect(() => {
     if (!shouldSendRequest) {
@@ -85,17 +100,40 @@ export function IssuesList() {
         </Button>
       </Box>
 
-      <Box>
-        {Project.hasItems(project) &&
-          project.issuesConnection.items.map((i) => (
-            <IssueItem
-              key={i.id}
-              issue={i}
-              projectId={project.id}
-              onEditClick={handleEditClick}
-            />
-          ))}
-      </Box>
+      <Grid container spacing={1}>
+        <Grid item xs={3}>
+          <IssuesColumn
+            header="Not started"
+            issues={notStartedIssues}
+            projectId={project?.id}
+            onEditClick={handleEditClick}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <IssuesColumn
+            header="Started"
+            issues={startedIssues}
+            projectId={project?.id}
+            onEditClick={handleEditClick}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <IssuesColumn
+            header="Paused"
+            issues={pausedIssues}
+            projectId={project?.id}
+            onEditClick={handleEditClick}
+          />
+        </Grid>
+        <Grid item xs={3}>
+          <IssuesColumn
+            header="Completed"
+            issues={completedIssues}
+            projectId={project?.id}
+            onEditClick={handleEditClick}
+          />
+        </Grid>
+      </Grid>
 
       <AddEditIssueDialog
         issue={issueForEdit}
@@ -112,6 +150,9 @@ export function IssuesList() {
     </React.Fragment>
   );
 }
+
+const getIssuesByStatus = (issues: Issue[], status: Issue['status']) =>
+  issues.filter((i) => i.status === status);
 
 const getViewQueryParams = () => {
   const queryParams = qs.parse(window.location.search) as {
@@ -142,5 +183,30 @@ export function PageBreadcrumbs(props: { project: Project }) {
       </Link>
       <Typography color="text.primary">Issues</Typography>
     </Breadcrumbs>
+  );
+}
+
+export function IssuesColumn(props: {
+  header: string;
+  issues: Issue[];
+  projectId: string;
+  onEditClick: (issue: Issue) => void;
+}) {
+  const { header, issues, projectId, onEditClick } = props;
+
+  return (
+    <React.Fragment>
+      <Chip label={header} sx={{ mb: 2 }} />
+      <Box>
+        {issues.map((i) => (
+          <IssueItem
+            key={i.id}
+            issue={i}
+            projectId={projectId}
+            onEditClick={onEditClick}
+          />
+        ))}
+      </Box>
+    </React.Fragment>
   );
 }

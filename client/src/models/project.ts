@@ -6,6 +6,7 @@ export interface Project {
   abbreviation: string;
   description: string;
   color: string;
+  updated: string;
   issuesConnection: {
     totalCount: number;
     items: Issue[];

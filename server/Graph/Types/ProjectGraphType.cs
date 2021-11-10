@@ -17,6 +17,7 @@ namespace MyPlays.GraphQlWebApi.Graph.Types
             Field(h => h.Abbreviation).Description("The abbreviation of the project.");
             Field(h => h.Description).Description("The description of the project.");
             Field(h => h.Color).Description("The color of the project.");
+            Field(h => h.Updated).Description("The timestamp of the last data update.");
 
             Connection<IssueGraphType>()
                 .Name("issuesConnection")

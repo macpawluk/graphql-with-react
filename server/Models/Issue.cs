@@ -1,4 +1,6 @@
-﻿namespace MyPlays.GraphQlWebApi.Models
+﻿using System;
+
+namespace MyPlays.GraphQlWebApi.Models
 {
     [MongoCollection("issues")]
     public class Issue : EntityRef, IEntity
@@ -10,5 +12,7 @@
         public string Description { get; set; }
 
         public EntityRef Project { get; set; }
+
+        public DateTime LastStatusChange { get; set; }
     }
 }

@@ -5,7 +5,8 @@ const frontEndApp = {
     "name": "Front-end app",
     "abbreviation": "FE",
     "description": "The front-end application for handling the tickets.",
-    "color": "#6e40bf"
+    "color": "#6e40bf",
+    "updated": new Date()
 };
 
 const webApi = {
@@ -13,7 +14,8 @@ const webApi = {
     "name": "Web API",
     "abbreviation": "BE",
     "description": "GrapQL API for serving projects related data.",
-    "color": "#bf5a40"
+    "color": "#bf5a40",
+    "updated": new Date()
 };
 
 const project3 = {
@@ -21,7 +23,8 @@ const project3 = {
     "name": "Palace",
     "abbreviation": "PL",
     "description": "The secrect project of bulding new mansion.",
-    "color": "#40acbf"
+    "color": "#40acbf",
+    "updated": new Date()
 };
 
 const project4 = {
@@ -29,7 +32,8 @@ const project4 = {
     "name": "Rio",
     "abbreviation": "RO",
     "description": "Plan to explore Rio De Janeiro and its neighbourhood",
-    "color": "#2d864e"
+    "color": "#2d864e",
+    "updated": new Date()
 };
 
 const project5 = {
@@ -37,7 +41,8 @@ const project5 = {
     "name": "Labyrinth",
     "abbreviation": "LB",
     "description": "The quiz application for kids in school age.",
-    "color": "#86862d"
+    "color": "#86862d",
+    "updated": new Date()
 };
 
 const project6 = {
@@ -45,7 +50,8 @@ const project6 = {
     "name": "Seeburg",
     "abbreviation": "P6",
     "description": "The FPS game inspired by cartoon world.",
-    "color": "#bf4073"
+    "color": "#bf4073",
+    "updated": new Date()
 };
 
 const project7 = {
@@ -53,7 +59,8 @@ const project7 = {
     "name": "Aloha",
     "abbreviation": "P7",
     "description": "The music project that main goal is helping in relaxation.",
-    "color": "#2d4586"
+    "color": "#2d4586",
+    "updated": new Date()
 };
 
 const project8 = {
@@ -61,7 +68,8 @@ const project8 = {
     "name": "Lambeth",
     "abbreviation": "P8",
     "description": "Standalone tool for scraping news feeds from random sources.",
-    "color": "#4d4d19"
+    "color": "#4d4d19",
+    "updated": new Date()
 };
 
 db2.getCollection("projects").insertMany(
@@ -84,33 +92,39 @@ db2.getCollection("issues").insertMany(
             "name": "Pretty serious bug",
             "description": "That's a bug with a high priority, but I won't give you steps to reproduce ;-)",
             "type": 2,
-			"status": 1,
+            "status": 1,
             "project": {
                 "_id": frontEndApp._id,
                 "name": frontEndApp.name
-            }
+            },
+            "updated": new Date(),
+            "lastStatusChange": new Date()
         },
         {
             "_id": new ObjectId(),
             "name": "Nice improvement",
             "description": "World is going to be so much better once you put that in!",
             "type": 4,
-			"status": 1,
+            "status": 1,
             "project": {
                 "_id": frontEndApp._id,
                 "name": frontEndApp.name
-            }
+            },
+            "updated": new Date(),
+            "lastStatusChange": new Date()
         },
         {
             "_id": new ObjectId(),
             "name": "Regular story",
             "description": "And some button there and don't ask further questions :-)",
             "type": 3,
-			"status": 1,
+            "status": 1,
             "project": {
                 "_id": frontEndApp._id,
                 "name": frontEndApp.name
-            }
+            },
+            "updated": new Date(),
+            "lastStatusChange": new Date()
         }
     ]
 );

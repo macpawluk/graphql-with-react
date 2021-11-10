@@ -12,6 +12,13 @@ namespace MyPlays.GraphQlWebApi.Extensions
             Func<IAggregateFluent<TResult>, IAggregateFluent<TResult>> stage)
             => condition ? stage(aggregate) : aggregate;
 
+        public static UpdateDefinition<TDocument> ConditionalSet<TDocument, TField>(
+            this UpdateDefinition<TDocument> update,
+            FieldDefinition<TDocument, TField> field,
+            bool condition,
+            Func<TField> getValueCallback)
+            => condition ? update.Set(field, getValueCallback()) : update;
+
         public static IMongoCollection<T> GetDBCollection<T>(this IMongoDatabase database)
         {
             var type = typeof(T);

@@ -8,7 +8,9 @@ const addIssueMutation = `
         name,
         description,
         type,
-        status
+        status,
+        updated,
+        lastStatusChange
       }
     }
 `;
@@ -39,7 +41,9 @@ const editIssueMutation = `
         name,
         description,
         type,
-        status
+        status,
+        updated,
+        lastStatusChange
       }
     }
 `;

@@ -72,17 +72,23 @@ export const projectsSlice = createSlice({
     },
     updateIssue: (state, action: PayloadAction<IssueActionPayload>) => {
       const { projectId, issue } = action.payload;
-      const projectToUpdate = state.items.find((p) => p.id === projectId);
-      if (!projectToUpdate) {
-        return;
-      }
-      const indexToUpdate = projectToUpdate.issuesConnection.items.findIndex(
-        (p) => p.id === issue.id
-      );
-      if (indexToUpdate < 0) {
-        return;
-      }
-      projectToUpdate.issuesConnection.items[indexToUpdate] = issue;
+
+      updateIssueInStore(state, projectId, issue.id, () => issue);
+    },
+    changeIssueStatus: (
+      state,
+      action: PayloadAction<{
+        projectId: string;
+        issueId: string;
+        newStatus: Issue['status'];
+      }>
+    ) => {
+      const { projectId, issueId, newStatus } = action.payload;
+
+      updateIssueInStore(state, projectId, issueId, (issue) => {
+        issue.status = newStatus;
+        return issue;
+      });
     },
     removeIssue: (
       state,
@@ -131,12 +137,45 @@ export const projectsSlice = createSlice({
   },
 });
 
+const updateIssueInStore = (
+  state: ProjectsState,
+  projectId: string,
+  issueId: string,
+  updater: (issue: Issue) => Issue
+) => {
+  const projectToUpdate = state.items.find((p) => p.id === projectId);
+  if (!projectToUpdate) {
+    return;
+  }
+  const indexToUpdate = projectToUpdate.issuesConnection.items.findIndex(
+    (p) => p.id === issueId
+  );
+  if (indexToUpdate < 0) {
+    return;
+  }
+
+  const updatedDate = new Date().toISOString();
+  const issueToUpdate = projectToUpdate.issuesConnection.items[indexToUpdate];
+
+  issueToUpdate.updated = updatedDate;
+
+  const prevStatus = issueToUpdate.status;
+  const updatedIssue = updater(issueToUpdate);
+
+  if (prevStatus !== updatedIssue.status) {
+    issueToUpdate.lastStatusChange = updatedDate;
+  }
+
+  projectToUpdate.issuesConnection.items[indexToUpdate] = updatedIssue;
+};
+
 export const {
   addProject,
   updateProject,
   removeProject,
   addIssue,
   updateIssue,
+  changeIssueStatus,
   removeIssue,
 } = projectsSlice.actions;
 

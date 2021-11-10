@@ -1,5 +1,7 @@
 import { Container } from '@mui/material';
 import { lazy, Suspense } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
   BrowserRouter as Router,
   Redirect,
@@ -14,7 +16,7 @@ const IssuesList = lazy(() => import('./components/issuesList'));
 
 function App() {
   return (
-    <div>
+    <DndProvider backend={HTML5Backend}>
       <ApplicationBar />
       <Container fixed>
         <Router>
@@ -29,7 +31,7 @@ function App() {
           </Suspense>
         </Router>
       </Container>
-    </div>
+    </DndProvider>
   );
 }
 

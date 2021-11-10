@@ -2,6 +2,7 @@
 using MyPlays.GraphQlWebApi.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace MyPlays.GraphQlWebApi.Services
@@ -19,6 +20,8 @@ namespace MyPlays.GraphQlWebApi.Services
 
         Task DeleteEnityById<T>(string id)
             where T : EntityWithId;
+
+        Task DeleteEnities<T>(Expression<Func<T, bool>> filter);
 
         Task<T> UpdateEnityById<T>(string id, Func<UpdateDefinitionBuilder<T>, UpdateDefinition<T>> updateCallback)
             where T : EntityWithId;

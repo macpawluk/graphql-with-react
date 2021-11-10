@@ -17,11 +17,15 @@ import {
 } from '@mui/material';
 import { blue, green, grey, red } from '@mui/material/colors';
 import React, { useState } from 'react';
+import { useDrag } from 'react-dnd';
 import { useAppDispatch } from '../../app/hooks';
 import { Issue } from '../../models';
 import { MessageBox } from './../../shared';
-import { removeIssue as removeIssueFromStore } from './../projectsList/projectsSlice';
-import { removeIssue } from './issuesApi';
+import {
+  changeIssueStatus as changeIssueStatusInStore,
+  removeIssue as removeIssueFromStore,
+} from './../projectsList/projectsSlice';
+import { editIssue, removeIssue } from './issuesApi';
 
 const theme = createTheme({
   components: {
@@ -76,10 +80,37 @@ export function IssueItem(props: {
   const accentColor = getIssueAccentColor(issue.type);
   const classes = useStyles();
 
+  const [_, drag] = useDrag(() => ({
+    type: 'ISSUE_CARD',
+    item: issue,
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+      handlerId: monitor.getHandlerId(),
+    }),
+    end: async (item, monitor) => {
+      const dropResult = monitor.getDropResult<{
+        dropEffect: string;
+        targetStatus: Issue['status'];
+      }>();
+      if (item && dropResult) {
+        dispatch(
+          changeIssueStatusInStore({
+            projectId: projectId,
+            issueId: issue.id,
+            newStatus: dropResult.targetStatus,
+          })
+        );
+
+        const updatedIssue = { ...issue, status: dropResult.targetStatus };
+        await editIssue(updatedIssue);
+      }
+    },
+  }));
+
   return (
     <React.Fragment>
       <ThemeProvider theme={theme}>
-        <Card sx={{ mb: 2, mr: 2, width: 270 }}>
+        <Card sx={{ mb: 2, mr: 2, width: 270 }} ref={drag} role="Handle">
           <CardContent sx={{ padding: 0 }}>
             <Box sx={{ height: 140 }}>
               <div>

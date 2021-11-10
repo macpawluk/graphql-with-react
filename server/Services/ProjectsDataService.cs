@@ -7,6 +7,7 @@ using MyPlays.GraphQlWebApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace MyPlays.GraphQlWebApi.Services
@@ -46,7 +47,8 @@ namespace MyPlays.GraphQlWebApi.Services
                     .ConditionalStage(
                         idsFilter != null,
                         agg => agg.Match(i => idsFilter.Contains(i.Project.Id)))
-                    .SortBy(i => i.Id)
+                    .SortByDescending(i => i.LastStatusChange)
+                    .ThenByDescending(i => i.Id)
                     .Group(new BsonDocument
                     {
                         { "_id", "$project._id" },
@@ -105,6 +107,13 @@ namespace MyPlays.GraphQlWebApi.Services
             var database = GetDatabase();
             var projectsCollection = database.GetDBCollection<T>();
             await projectsCollection.DeleteOneAsync(x => x.Id == id);
+        }
+
+        public async Task DeleteEnities<T>(Expression<Func<T, bool>> filter)
+        {
+            var database = GetDatabase();
+            var projectsCollection = database.GetDBCollection<T>();
+            await projectsCollection.DeleteManyAsync(filter);
         }
 
         public async Task<T> UpdateEnityById<T>(string id, Func<UpdateDefinitionBuilder<T>, UpdateDefinition<T>> updateCallback)

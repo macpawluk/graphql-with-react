@@ -3,7 +3,6 @@ import {
   Box,
   Breadcrumbs,
   Button,
-  Chip,
   Grid,
   Link,
   Typography,
@@ -22,11 +21,10 @@ import {
   updateIssue as updateIssueInStore,
 } from './../projectsList/projectsSlice';
 import { AddEditIssueDialog } from './AddEditIssueDialog';
-import { IssueItem } from './IssueItem';
 import { addIssue, editIssue } from './issuesApi';
+import { IssuesColumn } from './IssuesColumn';
 import { IssuesConsts } from './issuesConsts';
 
-//vvv add drag and drop to change the status
 export function IssuesList() {
   const { id: projectId } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
@@ -104,6 +102,7 @@ export function IssuesList() {
         <Grid item xs={3}>
           <IssuesColumn
             header="Not started"
+            issuesStatus="NOT_STARTED"
             issues={notStartedIssues}
             projectId={project?.id}
             onEditClick={handleEditClick}
@@ -111,7 +110,8 @@ export function IssuesList() {
         </Grid>
         <Grid item xs={3}>
           <IssuesColumn
-            header="Started"
+            header="In progress"
+            issuesStatus="IN_PROGRESS"
             issues={startedIssues}
             projectId={project?.id}
             onEditClick={handleEditClick}
@@ -120,6 +120,7 @@ export function IssuesList() {
         <Grid item xs={3}>
           <IssuesColumn
             header="Paused"
+            issuesStatus="PAUSED"
             issues={pausedIssues}
             projectId={project?.id}
             onEditClick={handleEditClick}
@@ -128,6 +129,7 @@ export function IssuesList() {
         <Grid item xs={3}>
           <IssuesColumn
             header="Completed"
+            issuesStatus="COMPLETED"
             issues={completedIssues}
             projectId={project?.id}
             onEditClick={handleEditClick}
@@ -183,30 +185,5 @@ export function PageBreadcrumbs(props: { project: Project }) {
       </Link>
       <Typography color="text.primary">Issues</Typography>
     </Breadcrumbs>
-  );
-}
-
-export function IssuesColumn(props: {
-  header: string;
-  issues: Issue[];
-  projectId: string;
-  onEditClick: (issue: Issue) => void;
-}) {
-  const { header, issues, projectId, onEditClick } = props;
-
-  return (
-    <React.Fragment>
-      <Chip label={header} sx={{ mb: 2 }} />
-      <Box>
-        {issues.map((i) => (
-          <IssueItem
-            key={i.id}
-            issue={i}
-            projectId={projectId}
-            onEditClick={onEditClick}
-          />
-        ))}
-      </Box>
-    </React.Fragment>
   );
 }

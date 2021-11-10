@@ -9,6 +9,7 @@ const queryAll = `
           abbreviation,
           description,
           color,
+          updated,
           issuesConnection(first: 10) {
               totalCount,
           }
@@ -29,6 +30,7 @@ const querySingle = (id: string) => `
         abbreviation,
         description,
         color,
+        updated,
         issuesConnection(first: 1000) {
             totalCount,
             pageInfo {
@@ -40,7 +42,9 @@ const querySingle = (id: string) => `
                 name,
                 description,
                 type,
-                status
+                status,
+                updated,
+                lastStatusChange
             }
         }
       }
@@ -59,7 +63,8 @@ const addProjectMutation = `
         name,
         abbreviation,
         description,
-        color
+        color,
+        updated
       }
     }
 `;
@@ -89,7 +94,8 @@ const editProjectMutation = `
         name,
         abbreviation,
         description,
-        color
+        color,
+        updated
       }
     }
 `;

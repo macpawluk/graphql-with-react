@@ -17,9 +17,12 @@
     "@types/react": "^16.14.16",
     "@types/react-dom": "^16.9.14",
     "@types/react-redux": "^7.1.18",
+    "lodash": "^4.17.21",
     "query-string": "^7.0.1",
     "react": "^17.0.2",
     "react-color": "^2.19.3",
+    "react-dnd": "^14.0.4",
+    "react-dnd-html5-backend": "^14.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.5",
     "react-router-dom": "^5.3.0",
@@ -32,9 +35,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [
@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@material-ui/types": "^5.1.0",
+    "@types/lodash": "^4.14.176",
     "@types/react-color": "^3.0.6",
     "@types/react-router-dom": "^5.3.1",
     "prettier": "^2.4.1"

@@ -16,8 +16,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
 import { Project } from '../../models';
 import { MessageBox } from './../../shared';
-import { removeProject } from './projectsApi';
-import { removeProject as removeProjectFromStore } from './projectsSlice';
+import { removeProjectAsync } from './projectsSlice';
 
 const theme = createTheme({
   components: {
@@ -48,8 +47,7 @@ export function ProjectItem(props: {
     setOpenRemoveMessageBox(false);
 
     if (result === true) {
-      await removeProject(project.id);
-      dispatch(removeProjectFromStore(project.id));
+      dispatch(removeProjectAsync(project.id));
     }
   };
 

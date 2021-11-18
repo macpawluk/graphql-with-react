@@ -22,10 +22,9 @@ import { useAppDispatch } from '../../app/hooks';
 import { Issue } from '../../models';
 import { MessageBox } from './../../shared';
 import {
-  changeIssueStatus as changeIssueStatusInStore,
-  removeIssue as removeIssueFromStore,
+  changeIssueStatusAsync,
+  removeIssueAsync,
 } from './../projectsList/projectsSlice';
-import { editIssue, removeIssue } from './issuesApi';
 
 const theme = createTheme({
   components: {
@@ -68,8 +67,7 @@ export function IssueItem(props: {
     setOpenRemoveMessageBox(false);
 
     if (result === true) {
-      await removeIssue(issue.id);
-      dispatch(removeIssueFromStore({ projectId, issueId: issue.id }));
+      dispatch(removeIssueAsync({ projectId, issueId: issue.id }));
     }
   };
 
@@ -94,15 +92,12 @@ export function IssueItem(props: {
       }>();
       if (item && dropResult) {
         dispatch(
-          changeIssueStatusInStore({
+          changeIssueStatusAsync({
             projectId: projectId,
-            issueId: issue.id,
+            issue: issue,
             newStatus: dropResult.targetStatus,
           })
         );
-
-        const updatedIssue = { ...issue, status: dropResult.targetStatus };
-        await editIssue(updatedIssue);
       }
     },
   }));

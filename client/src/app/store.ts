@@ -1,9 +1,11 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
+import appErrorsSlice from '../appErrorsSlice';
 import projectsSlice from '../components/projectsList/projectsSlice';
 
 export const store = configureStore({
   reducer: {
     projects: projectsSlice,
+    appErrors: appErrorsSlice,
   },
 });
 

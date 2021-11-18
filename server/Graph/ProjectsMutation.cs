@@ -27,11 +27,11 @@ namespace MyPlays.GraphQlWebApi.Graph
                resolve: context => AddProject(context));
 
             Field<ProjectGraphType>(
-                "editProject",
+                "updateProject",
                 arguments: new QueryArguments(
                     new QueryArgument<NonNullGraphType<ProjectInputGraphType>> { Name = "project" }
                 ),
-                resolve: context => EditProject(context));
+                resolve: context => UpdateProject(context));
 
             Field<ProjectGraphType>(
                 "removeProject",
@@ -49,11 +49,11 @@ namespace MyPlays.GraphQlWebApi.Graph
                resolve: context => AddIssue(context));
 
             Field<IssueGraphType>(
-                "editIssue",
+                "updateIssue",
                 arguments: new QueryArguments(
                     new QueryArgument<NonNullGraphType<IssueInputGraphType>> { Name = "issue" }
                 ),
-                resolve: context => EditIssue(context));
+                resolve: context => UpdateIssue(context));
 
             Field<IssueGraphType>(
                 "removeIssue",
@@ -73,7 +73,7 @@ namespace MyPlays.GraphQlWebApi.Graph
             return result;
         }
 
-        private async Task<Project> EditProject(IResolveFieldContext<object> context)
+        private async Task<Project> UpdateProject(IResolveFieldContext<object> context)
         {
             var project = context.GetArgument<Project>("project");
             var result = await _dataService.UpdateEnityById<Project>(
@@ -117,7 +117,7 @@ namespace MyPlays.GraphQlWebApi.Graph
             return result;
         }
 
-        private async Task<Issue> EditIssue(IResolveFieldContext<object> context)
+        private async Task<Issue> UpdateIssue(IResolveFieldContext<object> context)
         {
             var issue = context.GetArgument<Issue>("issue");
 

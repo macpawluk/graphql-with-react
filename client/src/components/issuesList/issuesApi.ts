@@ -1,5 +1,6 @@
+import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { Issue } from './../../models';
-import { graphQlMutate } from './../../utils/graphQl';
+import { graphQlMutate, GraphQlResponse } from './../../shared';
 
 const addIssueMutation = `
     mutation ($issue:IssueInsertInput!, $projectId:ID!) {
@@ -15,28 +16,37 @@ const addIssueMutation = `
     }
 `;
 
-export async function addIssue(
-  issue: Issue,
-  projectId: string
-): Promise<Issue> {
-  const { id, name, description, type, status } = issue;
-
-  const result = await graphQlMutate<{ addIssue: Issue }>(addIssueMutation, {
-    issue: {
-      id,
-      name,
-      description,
-      type,
-      status,
-    },
-    projectId,
-  });
-  return result.addIssue;
+interface AddIssueMutationInput {
+  addIssue: Issue;
 }
 
-const editIssueMutation = `
+export async function addIssue(
+  issue: Issue,
+  projectId: string,
+  dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+): Promise<GraphQlResponse<AddIssueMutationInput>> {
+  const { id, name, description, type, status } = issue;
+
+  const result = await graphQlMutate<AddIssueMutationInput>(
+    addIssueMutation,
+    {
+      issue: {
+        id,
+        name,
+        description,
+        type,
+        status,
+      },
+      projectId,
+    },
+    dispatch
+  );
+  return result;
+}
+
+const updateIssueMutation = `
     mutation ($issue:IssueInput!) {
-      editIssue(issue: $issue) {
+      updateIssue(issue: $issue) {
         id,
         name,
         description,
@@ -48,19 +58,30 @@ const editIssueMutation = `
     }
 `;
 
-export async function editIssue(issue: Issue): Promise<Issue> {
+interface UpdateIssueMutationInput {
+  updateIssue: Issue;
+}
+
+export async function updateIssue(
+  issue: Issue,
+  dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+): Promise<GraphQlResponse<UpdateIssueMutationInput>> {
   const { id, name, description, type, status } = issue;
 
-  const result = await graphQlMutate<{ editIssue: Issue }>(editIssueMutation, {
-    issue: {
-      id,
-      name,
-      description,
-      type,
-      status,
+  const result = await graphQlMutate<UpdateIssueMutationInput>(
+    updateIssueMutation,
+    {
+      issue: {
+        id,
+        name,
+        description,
+        type,
+        status,
+      },
     },
-  });
-  return result.editIssue;
+    dispatch
+  );
+  return result;
 }
 
 const removeIssueMutation = `
@@ -72,10 +93,18 @@ const removeIssueMutation = `
     }
 `;
 
-export async function removeIssue(id: string): Promise<Issue> {
-  const result = await graphQlMutate<{ removeIssue: Issue }>(
+interface RemoveIssueMutationInput {
+  removeIssue: Issue;
+}
+
+export async function removeIssue(
+  id: string,
+  dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+): Promise<GraphQlResponse<RemoveIssueMutationInput>> {
+  const result = await graphQlMutate<RemoveIssueMutationInput>(
     removeIssueMutation,
-    { issue: { id } }
+    { issue: { id } },
+    dispatch
   );
-  return result.removeIssue;
+  return result;
 }

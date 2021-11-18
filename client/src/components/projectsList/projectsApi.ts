@@ -1,5 +1,7 @@
+import { AnyAction } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { Project } from './../../models';
-import { graphQlFetch, graphQlMutate } from './../../utils/graphQl';
+import { graphQlFetch, graphQlMutate, GraphQlResponse } from './../../shared';
 
 const queryAll = `
     query projectsQuery {
@@ -17,9 +19,15 @@ const queryAll = `
     }
 `;
 
-export async function fetchAllProjects(): Promise<Project[]> {
-  const result = await graphQlFetch<{ projects: Project[] }>(queryAll);
-  return result.projects;
+interface FetchAllProjectsInput {
+  projects: Project[];
+}
+
+export async function fetchAllProjects(
+  dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+): Promise<GraphQlResponse<FetchAllProjectsInput>> {
+  const result = await graphQlFetch<FetchAllProjectsInput>(queryAll, dispatch);
+  return result;
 }
 
 const querySingle = (id: string) => `
@@ -51,9 +59,20 @@ const querySingle = (id: string) => `
     }
 `;
 
-export async function fetchProjectDetails(id: string): Promise<Project> {
-  const result = await graphQlFetch<{ project: Project }>(querySingle(id));
-  return result.project;
+interface FetchProjectDetailsInput {
+  project: Project;
+}
+
+export async function fetchProjectDetails(
+  id: string,
+  dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+): Promise<GraphQlResponse<FetchProjectDetailsInput>> {
+  const result = await graphQlFetch<FetchProjectDetailsInput>(
+    querySingle(id),
+    dispatch
+  );
+
+  return result;
 }
 
 const addProjectMutation = `
@@ -69,10 +88,17 @@ const addProjectMutation = `
     }
 `;
 
-export async function addProject(project: Project): Promise<Project> {
+interface AddProjectMutationInput {
+  addProject: Project;
+}
+
+export async function addProject(
+  project: Project,
+  dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+): Promise<GraphQlResponse<AddProjectMutationInput>> {
   const { id, name, abbreviation, description, color } = project;
 
-  const result = await graphQlMutate<{ addProject: Project }>(
+  const result = await graphQlMutate<AddProjectMutationInput>(
     addProjectMutation,
     {
       project: {
@@ -82,14 +108,15 @@ export async function addProject(project: Project): Promise<Project> {
         description,
         color,
       },
-    }
+    },
+    dispatch
   );
-  return result.addProject;
+  return result;
 }
 
-const editProjectMutation = `
+const updateProjectMutation = `
     mutation ($project:ProjectInput!) {
-      editProject(project: $project) {
+      updateProject(project: $project) {
         id,
         name,
         abbreviation,
@@ -100,11 +127,18 @@ const editProjectMutation = `
     }
 `;
 
-export async function editProject(project: Project): Promise<Project> {
+interface UpdateProjectMutationInput {
+  updateProject: Project;
+}
+
+export async function updateProject(
+  project: Project,
+  dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+): Promise<GraphQlResponse<UpdateProjectMutationInput>> {
   const { id, name, abbreviation, description, color } = project;
 
-  const result = await graphQlMutate<{ editProject: Project }>(
-    editProjectMutation,
+  const result = await graphQlMutate<UpdateProjectMutationInput>(
+    updateProjectMutation,
     {
       project: {
         id,
@@ -113,9 +147,10 @@ export async function editProject(project: Project): Promise<Project> {
         description,
         color,
       },
-    }
+    },
+    dispatch
   );
-  return result.editProject;
+  return result;
 }
 
 const removeProjectMutation = `
@@ -127,10 +162,18 @@ const removeProjectMutation = `
     }
 `;
 
-export async function removeProject(id: string): Promise<Project> {
-  const result = await graphQlMutate<{ removeProject: Project }>(
+interface RemoveProjectMutationInput {
+  removeProject: Project;
+}
+
+export async function removeProject(
+  id: string,
+  dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+): Promise<GraphQlResponse<RemoveProjectMutationInput>> {
+  const result = await graphQlMutate<RemoveProjectMutationInput>(
     removeProjectMutation,
-    { project: { id } }
+    { project: { id } },
+    dispatch
   );
-  return result.removeProject;
+  return result;
 }

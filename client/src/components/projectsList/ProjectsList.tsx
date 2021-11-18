@@ -15,13 +15,12 @@ import { Project } from '../../models';
 import { setQueryParam } from './../../shared';
 import { AddEditProjectDialog } from './AddEditProjectDialog';
 import { ProjectItem } from './ProjectItem';
-import { addProject, editProject } from './projectsApi';
 import { ProjectsConsts } from './projectsConsts';
 import {
-  addProject as addProjectToStore,
+  addProjectAsync,
   getAllProjectsAsync,
   selectProjectsState,
-  updateProject as updateProjectInStore,
+  updateProjectAsync,
 } from './projectsSlice';
 
 //vvv introdce aliases for some areas, such as /shared/messageBox
@@ -51,8 +50,7 @@ export function ProjectsList() {
     setQueryParam(history, ProjectsConsts.ProjectIdParam, null);
 
     if (result === true) {
-      const updatedProject = await editProject(project);
-      dispatch(updateProjectInStore(updatedProject));
+      dispatch(updateProjectAsync(project));
     }
   };
 
@@ -60,8 +58,7 @@ export function ProjectsList() {
     setQueryParam(history, ProjectsConsts.AddProjectParam, false);
 
     if (result === true) {
-      const addedProject = await addProject(project);
-      dispatch(addProjectToStore(addedProject));
+      dispatch(addProjectAsync(project));
     }
   };
 

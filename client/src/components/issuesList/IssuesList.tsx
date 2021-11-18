@@ -16,12 +16,11 @@ import { Project } from './../../models/project';
 import { setQueryParam } from './../../shared';
 import { ProjectsConsts, selectProject } from './../projectsList';
 import {
-  addIssue as addIssueToStore,
+  addIssueAsync,
   getSingleProjectsAsync,
-  updateIssue as updateIssueInStore,
+  updateIssueAsync,
 } from './../projectsList/projectsSlice';
 import { AddEditIssueDialog } from './AddEditIssueDialog';
-import { addIssue, editIssue } from './issuesApi';
 import { IssuesColumn } from './IssuesColumn';
 import { IssuesConsts } from './issuesConsts';
 
@@ -58,8 +57,7 @@ export function IssuesList() {
     setQueryParam(history, IssuesConsts.IssueIdParam, null);
 
     if (result === true) {
-      const editedIssue = await editIssue(issue);
-      dispatch(updateIssueInStore({ projectId, issue: editedIssue }));
+      dispatch(updateIssueAsync({ issue, projectId }));
     }
   };
 
@@ -67,8 +65,7 @@ export function IssuesList() {
     setQueryParam(history, IssuesConsts.AddIssueParam, false);
 
     if (result === true) {
-      const addedIssue = await addIssue(issue, project.id);
-      dispatch(addIssueToStore({ issue: addedIssue, projectId: projectId }));
+      dispatch(addIssueAsync({ issue, projectId: project.id }));
     }
   };
 

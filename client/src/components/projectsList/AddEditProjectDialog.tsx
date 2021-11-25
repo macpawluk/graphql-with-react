@@ -1,3 +1,4 @@
+import { Project } from '@app/models';
 import {
   Box,
   Button,
@@ -12,7 +13,6 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { ColorResult, SliderPicker } from 'react-color';
-import { Project } from '../../models';
 import { SlideTransition } from './../../shared/Transitions';
 
 interface DialogProps {

@@ -1,3 +1,4 @@
+import { Project } from '@app/models';
 import AddIcon from '@mui/icons-material/Add';
 import {
   Box,
@@ -11,7 +12,6 @@ import qs from 'query-string';
 import React, { useEffect } from 'react';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { Project } from '../../models';
 import { setQueryParam } from './../../shared';
 import { AddEditProjectDialog } from './AddEditProjectDialog';
 import { ProjectItem } from './ProjectItem';
@@ -22,8 +22,6 @@ import {
   selectProjectsState,
   updateProjectAsync,
 } from './projectsSlice';
-
-//vvv introdce aliases for some areas, such as /shared/messageBox
 
 export function ProjectsList() {
   const dispatch = useAppDispatch();

@@ -1,5 +1,5 @@
+import { Issue } from '@app/models';
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
-import { Issue } from './../../models';
 import { graphQlMutate, GraphQlResponse } from './../../shared';
 
 const addIssueMutation = `

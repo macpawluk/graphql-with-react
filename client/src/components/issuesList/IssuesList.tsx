@@ -1,3 +1,4 @@
+import { Issue, Project } from '@app/models';
 import AddIcon from '@mui/icons-material/Add';
 import {
   Box,
@@ -11,8 +12,6 @@ import qs from 'query-string';
 import React, { useEffect } from 'react';
 import { Link as RouterLink, useHistory, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { Issue } from '../../models';
-import { Project } from './../../models/project';
 import { setQueryParam } from './../../shared';
 import { ProjectsConsts, selectProject } from './../projectsList';
 import {

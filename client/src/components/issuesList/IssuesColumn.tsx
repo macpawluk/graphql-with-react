@@ -1,9 +1,9 @@
+import { Issue } from '@app/models';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, Chip } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import * as _ from 'lodash';
 import { useDrop } from 'react-dnd';
-import { Issue } from '../../models';
 import { IssueItem } from './IssueItem';
 
 const useStyles = makeStyles({

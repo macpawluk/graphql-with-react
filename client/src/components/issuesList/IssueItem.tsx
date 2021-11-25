@@ -1,3 +1,5 @@
+import { Issue } from '@app/models';
+import { MessageBox } from '@app/shared';
 import { makeStyles } from '@material-ui/core/styles';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import BugReportIcon from '@mui/icons-material/BugReport';
@@ -19,8 +21,6 @@ import { blue, green, grey, red } from '@mui/material/colors';
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { useAppDispatch } from '../../app/hooks';
-import { Issue } from '../../models';
-import { MessageBox } from './../../shared';
 import {
   changeIssueStatusAsync,
   removeIssueAsync,

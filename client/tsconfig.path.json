@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@app/shared": ["src/shared/index"],
+      "@app/models": ["src/models/index"]
+    }
+  }
+}

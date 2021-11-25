@@ -1,3 +1,4 @@
+import { Issue } from '@app/models';
 import {
   Box,
   Button,
@@ -13,7 +14,6 @@ import {
   TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Issue } from '../../models';
 import { SlideTransition } from './../../shared/Transitions';
 
 interface DialogProps {

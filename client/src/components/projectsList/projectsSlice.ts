@@ -1,7 +1,7 @@
+import { Issue, Project } from '@app/models';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 import { GraphQlResponse } from '../../shared';
-import { Issue, Project } from './../../models';
 import { addIssue, removeIssue, updateIssue } from './../issuesList/issuesApi';
 import {
   addProject as addProjectApi,

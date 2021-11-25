@@ -1,6 +1,6 @@
+import { Project } from '@app/models';
 import { AnyAction } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { Project } from './../../models';
 import { graphQlFetch, graphQlMutate, GraphQlResponse } from './../../shared';
 
 const queryAll = `

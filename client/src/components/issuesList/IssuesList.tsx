@@ -6,8 +6,10 @@ import {
   Button,
   Grid,
   Link,
+  Stack,
   Typography,
 } from '@mui/material';
+import { blue } from '@mui/material/colors';
 import qs from 'query-string';
 import React, { useEffect } from 'react';
 import { Link as RouterLink, useHistory, useParams } from 'react-router-dom';
@@ -79,8 +81,33 @@ export function IssuesList() {
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex' }}>
-        <Box sx={{ mt: 3, mb: 4, flexGrow: 1 }}>
+        <Box sx={{ mt: 3, mb: 4, flexGrow: 0 }}>
           <PageBreadcrumbs project={project} />
+        </Box>
+
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            alignSelf: 'center',
+            flexDirection: 'column',
+          }}
+        >
+          <Stack direction="row" spacing={1} sx={{ alignSelf: 'center' }}>
+            <Box
+              sx={{
+                backgroundColor: blue['100'],
+                boxShadow: 2,
+                fontSize: 'small',
+                px: 2,
+                py: 1,
+                borderRadius: 2,
+                color: 'text.secondary',
+              }}
+            >
+              Drag & Drop cards
+            </Box>
+          </Stack>
         </Box>
 
         <Button

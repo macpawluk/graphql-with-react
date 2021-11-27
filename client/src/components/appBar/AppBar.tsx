@@ -6,11 +6,17 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import { purple } from '@mui/material/colors';
 
 export const ApplicationBar = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar
+        position="static"
+        style={{
+          background: `linear-gradient(to left, ${purple['600']}, ${purple['900']})`,
+        }}
+      >
         <Container fixed>
           <Toolbar
             sx={{ paddingLeft: '0 !important', paddingRight: '0 !important' }}

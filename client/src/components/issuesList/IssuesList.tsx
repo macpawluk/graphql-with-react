@@ -1,17 +1,20 @@
 import { Issue, Project } from '@app/models';
+import { NoResultsPlaceholder } from '@app/shared';
 import AddIcon from '@mui/icons-material/Add';
 import {
   Box,
   Breadcrumbs,
   Button,
+  Fade,
   Grid,
   Link,
+  Slide,
   Stack,
   Typography,
 } from '@mui/material';
 import { blue } from '@mui/material/colors';
 import qs from 'query-string';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink, useHistory, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setQueryParam } from './../../shared';
@@ -19,6 +22,7 @@ import { ProjectsConsts, selectProject } from './../projectsList';
 import {
   addIssueAsync,
   getSingleProjectsAsync,
+  selectProjectsState,
   updateIssueAsync,
 } from './../projectsList/projectsSlice';
 import { AddEditIssueDialog } from './AddEditIssueDialog';
@@ -32,6 +36,8 @@ export function IssuesList() {
   const project = useAppSelector((state) =>
     selectProject(state, projectId)
   ) as Project;
+  const [tipShown, setTipShown] = useState(false);
+  const isLoading = useAppSelector(selectProjectsState).status === 'loading';
 
   const shouldSendRequest = !project || !Project.hasItems(project);
   const viewParams = getViewQueryParams();
@@ -46,6 +52,7 @@ export function IssuesList() {
   const startedIssues = getIssuesByStatus(allIssues, 'IN_PROGRESS');
   const pausedIssues = getIssuesByStatus(allIssues, 'PAUSED');
   const completedIssues = getIssuesByStatus(allIssues, 'COMPLETED');
+  const hasAnyIssues = allIssues.length > 0;
 
   useEffect(() => {
     if (!shouldSendRequest) {
@@ -78,6 +85,12 @@ export function IssuesList() {
     setQueryParam(history, IssuesConsts.IssueIdParam, issue.id);
   };
 
+  const handleTipShown = () => {
+    setTipShown(true);
+  };
+
+  const cardsGridRef = useRef(null);
+
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex' }}>
@@ -94,19 +107,13 @@ export function IssuesList() {
           }}
         >
           <Stack direction="row" spacing={1} sx={{ alignSelf: 'center' }}>
-            <Box
-              sx={{
-                backgroundColor: blue['100'],
-                boxShadow: 2,
-                fontSize: 'small',
-                px: 2,
-                py: 1,
-                borderRadius: 2,
-                color: 'text.secondary',
-              }}
-            >
-              Drag & Drop cards
-            </Box>
+            {hasAnyIssues && !tipShown && (
+              <AnimatedTip
+                text="Drag & Drop cards"
+                container={cardsGridRef}
+                onTipShown={handleTipShown}
+              ></AnimatedTip>
+            )}
           </Stack>
         </Box>
 
@@ -121,44 +128,52 @@ export function IssuesList() {
         </Button>
       </Box>
 
-      <Grid container spacing={1}>
-        <Grid item xs={3}>
-          <IssuesColumn
-            header="Not started"
-            issuesStatus="NOT_STARTED"
-            issues={notStartedIssues}
-            projectId={project?.id}
-            onEditClick={handleEditClick}
-          />
+      {hasAnyIssues && (
+        <Grid container spacing={1} ref={cardsGridRef}>
+          <Grid item xs={3}>
+            <IssuesColumn
+              header="Not started"
+              issuesStatus="NOT_STARTED"
+              issues={notStartedIssues}
+              projectId={project?.id}
+              onEditClick={handleEditClick}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <IssuesColumn
+              header="In progress"
+              issuesStatus="IN_PROGRESS"
+              issues={startedIssues}
+              projectId={project?.id}
+              onEditClick={handleEditClick}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <IssuesColumn
+              header="Paused"
+              issuesStatus="PAUSED"
+              issues={pausedIssues}
+              projectId={project?.id}
+              onEditClick={handleEditClick}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <IssuesColumn
+              header="Completed"
+              issuesStatus="COMPLETED"
+              issues={completedIssues}
+              projectId={project?.id}
+              onEditClick={handleEditClick}
+            />
+          </Grid>
         </Grid>
-        <Grid item xs={3}>
-          <IssuesColumn
-            header="In progress"
-            issuesStatus="IN_PROGRESS"
-            issues={startedIssues}
-            projectId={project?.id}
-            onEditClick={handleEditClick}
-          />
-        </Grid>
-        <Grid item xs={3}>
-          <IssuesColumn
-            header="Paused"
-            issuesStatus="PAUSED"
-            issues={pausedIssues}
-            projectId={project?.id}
-            onEditClick={handleEditClick}
-          />
-        </Grid>
-        <Grid item xs={3}>
-          <IssuesColumn
-            header="Completed"
-            issuesStatus="COMPLETED"
-            issues={completedIssues}
-            projectId={project?.id}
-            onEditClick={handleEditClick}
-          />
-        </Grid>
-      </Grid>
+      )}
+
+      {!hasAnyIssues && !isLoading && (
+        <Box sx={{ marginTop: 20 }}>
+          <NoResultsPlaceholder text="I am so empty. Add something here…" />
+        </Box>
+      )}
 
       <AddEditIssueDialog
         issue={issueForEdit}
@@ -208,5 +223,61 @@ export function PageBreadcrumbs(props: { project: Project }) {
       </Link>
       <Typography color="text.primary">Issues</Typography>
     </Breadcrumbs>
+  );
+}
+
+export function AnimatedTip(props: {
+  text: string;
+  container?: React.MutableRefObject<null>;
+  onTipShown?: () => void;
+}) {
+  const { text, container, onTipShown } = props;
+  const [showTip, setShowTip] = useState(false);
+
+  useEffect(
+    () => {
+      const timeout1 = setTimeout(() => setShowTip(true), 1000);
+      const timeout2 = setTimeout(() => setShowTip(false), 5000);
+
+      return () => {
+        clearTimeout(timeout1);
+        clearTimeout(timeout2);
+
+        if (onTipShown) {
+          onTipShown();
+        }
+      };
+    },
+    // eslint-disable-next-line
+    []
+  );
+
+  return (
+    <Slide
+      direction="up"
+      in={showTip}
+      timeout={500}
+      container={container?.current}
+      mountOnEnter
+      unmountOnExit
+    >
+      <Box>
+        <Fade in={showTip} timeout={500}>
+          <Box
+            sx={{
+              backgroundColor: blue['100'],
+              boxShadow: 2,
+              fontSize: 'small',
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+              color: 'text.secondary',
+            }}
+          >
+            {text}
+          </Box>
+        </Fade>
+      </Box>
+    </Slide>
   );
 }

@@ -2,7 +2,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   Avatar,
-  Button,
+  ButtonBase,
   Card,
   CardActions,
   CardContent,
@@ -11,8 +11,8 @@ import {
   ThemeProvider,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useAppDispatch } from '../../app/hooks';
 import { Project } from '../../models';
 import { MessageBox } from './../../shared';
@@ -41,6 +41,7 @@ export function ProjectItem(props: {
 }) {
   const { project, onEditClick } = props;
   const [openRemoveMessageBox, setOpenRemoveMessageBox] = useState(false);
+  const history = useHistory();
   const dispatch = useAppDispatch();
 
   const handleDeleteMessageBoxClose = async (result: boolean) => {
@@ -51,74 +52,95 @@ export function ProjectItem(props: {
     }
   };
 
-  const handleDeleteClick = () => {
+  const handleDeleteClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
     setOpenRemoveMessageBox(true);
+    e.stopPropagation();
+  };
+
+  const handleEditClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    onEditClick(project);
+    e.stopPropagation();
+  };
+
+  const handleCardClick = () => {
+    history.push(`/project/${project.id}/issues`);
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <CardContent sx={{ flexGrow: 1 }}>
-          <div style={{ display: 'flex' }}>
-            <div style={{ flexGrow: 1 }}>
-              <Typography
-                sx={{ fontSize: 14 }}
-                color="text.secondary"
-                gutterBottom
-              >
-                Project
-              </Typography>
-              <Typography variant="h5" component="div">
-                {project.name}
-              </Typography>
-            </div>
+    <React.Fragment>
+      <ButtonBase
+        component="div"
+        sx={{ height: '100%', textAlign: 'initial' }}
+        onClick={handleCardClick}
+      >
+        <ThemeProvider theme={theme}>
+          <Card
+            sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+          >
+            <CardContent sx={{ flexGrow: 1 }}>
+              <div style={{ display: 'flex' }}>
+                <div style={{ flexGrow: 1 }}>
+                  <Typography
+                    sx={{ fontSize: 14 }}
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Project
+                  </Typography>
+                  <Typography variant="h5" component="div">
+                    {project.name}
+                  </Typography>
+                </div>
 
-            <Avatar
-              sx={{
-                bgcolor: project.color,
-                width: 30,
-                height: 30,
-                fontSize: 12,
-                flexGrow: 0,
-              }}
-            >
-              {project.abbreviation}
-            </Avatar>
-          </div>
-          <Typography variant="body2">{project.description}</Typography>
-        </CardContent>
-        <CardActions sx={{ flexGrow: 0 }}>
-          <div style={{ display: 'flex', width: '100%' }}>
-            <div style={{ flexGrow: 1 }}>
-              <Button
-                component={RouterLink}
-                to={`/project/${project.id}/issues`}
+                <Avatar
+                  sx={{
+                    bgcolor: project.color,
+                    width: 30,
+                    height: 30,
+                    fontSize: 12,
+                    flexGrow: 0,
+                  }}
+                >
+                  {project.abbreviation}
+                </Avatar>
+              </div>
+              <Typography variant="body2">{project.description}</Typography>
+            </CardContent>
+            <CardActions sx={{ flexGrow: 0 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '100%',
+                }}
               >
-                Open
-              </Button>
-            </div>
-
-            <div style={{ display: 'flex' }}>
-              <IconButton
-                aria-label="edit"
-                size="small"
-                className="on-hover-show"
-                onClick={() => onEditClick(project)}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                aria-label="delete"
-                size="small"
-                className="on-hover-show"
-                onClick={handleDeleteClick}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </div>
-          </div>
-        </CardActions>
-      </Card>
+                <div style={{ display: 'flex', alignSelf: 'end' }}>
+                  <IconButton
+                    aria-label="edit"
+                    size="small"
+                    className="on-hover-show"
+                    onClick={(e) => handleEditClick(e)}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    aria-label="delete"
+                    size="small"
+                    className="on-hover-show"
+                    onClick={(e) => handleDeleteClick(e)}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </div>
+              </div>
+            </CardActions>
+          </Card>
+        </ThemeProvider>
+      </ButtonBase>
 
       <MessageBox
         open={openRemoveMessageBox}
@@ -130,6 +152,6 @@ export function ProjectItem(props: {
         cancelButtonCaption="No"
         onClose={handleDeleteMessageBoxClose}
       ></MessageBox>
-    </ThemeProvider>
+    </React.Fragment>
   );
 }

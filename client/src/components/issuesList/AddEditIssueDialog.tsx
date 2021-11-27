@@ -63,10 +63,10 @@ export function AddEditIssueDialog(props: DialogProps) {
     onClose(result, editedIssue);
   };
 
-  const handleDialogKeyUp = (e: { keyCode: number }) => {
+  const handleDialogKeyUp = (e: { keyCode: number; target: any }) => {
     const enter = 13;
 
-    if (e.keyCode === enter) {
+    if (e.keyCode === enter && e.target.type !== 'textarea') {
       handleClose(true);
     }
   };

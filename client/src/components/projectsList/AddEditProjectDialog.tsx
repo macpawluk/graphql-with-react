@@ -63,13 +63,16 @@ export function AddEditProjectDialog(props: DialogProps) {
       ...editedProjectProps,
     } as Project;
 
+    if (colorPopoverAnchor) {
+      setColorPopoverAnchor(undefined);
+    }
     onClose(result, editedProject);
   };
 
-  const handleDialogKeyUp = (e: { keyCode: number }) => {
+  const handleDialogKeyUp = (e: { keyCode: number; target: any }) => {
     const enter = 13;
 
-    if (e.keyCode === enter) {
+    if (e.keyCode === enter && e.target.type !== 'textarea') {
       handleClose(true);
     }
   };
@@ -126,6 +129,8 @@ export function AddEditProjectDialog(props: DialogProps) {
           id="description"
           margin="dense"
           label="Description"
+          multiline
+          minRows={2}
           value={editedProjectProps.description}
           error={!!descriptionError}
           helperText={descriptionError}

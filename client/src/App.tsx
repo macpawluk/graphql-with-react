@@ -11,7 +11,7 @@ import {
 } from 'react-router-dom';
 import './App.css';
 import { useAppSelector } from './app/hooks';
-import { clearError, selectAppErrorsState } from './appErrorsSlice';
+import { clearError, selectAppState } from './appStateSlice';
 import { ApplicationBar } from './components/appBar';
 import { ErrorNotification } from './ErrorNotification';
 
@@ -20,8 +20,8 @@ const IssuesList = lazy(() => import('./components/issuesList'));
 
 function App() {
   const dispatch = useDispatch();
-  const appErrorsState = useAppSelector(selectAppErrorsState);
-  const hasError = !!appErrorsState.lastError;
+  const appState = useAppSelector(selectAppState);
+  const hasError = !!appState.lastError;
 
   const handleErrorPopupClose = () => {
     dispatch(clearError());
@@ -45,7 +45,7 @@ function App() {
       </Container>
 
       <ErrorNotification
-        errorMessage={appErrorsState.lastError as string}
+        errorMessage={appState.lastError as string}
         open={hasError}
         onClose={handleErrorPopupClose}
       />

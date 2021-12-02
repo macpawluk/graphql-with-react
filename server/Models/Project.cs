@@ -15,11 +15,4 @@ namespace MyPlays.GraphQlWebApi.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string[] Issues { get; set; }
     }
-
-    //vvv
-    //public class ProjectWithIssuesIds : Project
-    //{
-    //    [BsonRepresentation(BsonType.ObjectId)]
-    //    public string[] Issues { get; set; }
-    //}
 }

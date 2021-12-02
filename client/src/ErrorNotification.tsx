@@ -19,7 +19,6 @@ export function ErrorNotification(props: {
   onClose?: () => void;
 }) {
   const { errorMessage, open, onClose } = props;
-
   const classes = useStyles();
 
   const handleClose = (reason: SnackbarCloseReason) => {

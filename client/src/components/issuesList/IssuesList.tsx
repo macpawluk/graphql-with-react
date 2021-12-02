@@ -21,7 +21,7 @@ import { setQueryParam } from './../../shared';
 import { ProjectsConsts, selectProject } from './../projectsList';
 import {
   addIssueAsync,
-  getSingleProjectsAsync,
+  getSingleProjectAsync,
   selectProjectsState,
   updateIssueAsync,
 } from './../projectsList/projectsSlice';
@@ -58,7 +58,7 @@ export function IssuesList() {
     if (!shouldSendRequest) {
       return;
     }
-    dispatch(getSingleProjectsAsync(projectId));
+    dispatch(getSingleProjectAsync(projectId));
   }, [dispatch, projectId, shouldSendRequest]);
 
   const handleEditDialogClose = async (result: boolean, issue: Issue) => {

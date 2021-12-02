@@ -23,7 +23,7 @@ const initialState: ProjectsState = {
   status: 'idle',
 };
 
-export const getSingleProjectsAsync = createAsyncThunk(
+export const getSingleProjectAsync = createAsyncThunk(
   'projects/getSingle',
   async (id: string, { dispatch }) => {
     const response = await fetchProjectDetails(id, dispatch);
@@ -135,13 +135,13 @@ export const projectsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getSingleProjectsAsync.pending, (state) => {
+      .addCase(getSingleProjectAsync.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(getSingleProjectsAsync.rejected, (state) => {
+      .addCase(getSingleProjectAsync.rejected, (state) => {
         state.status = 'failed';
       })
-      .addCase(getSingleProjectsAsync.fulfilled, (state, action) => {
+      .addCase(getSingleProjectAsync.fulfilled, (state, action) => {
         state.status = 'idle';
 
         if (GraphQlResponse.hasErrors(action.payload)) {

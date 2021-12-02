@@ -1,5 +1,5 @@
 import { AnyAction, ThunkDispatch } from '@reduxjs/toolkit';
-import { reportError } from './../appErrorsSlice';
+import { reportError } from './../appStateSlice';
 
 const apiEndpointAddress = process.env.REACT_APP_API_ADDRESS as string;
 

@@ -30,7 +30,7 @@ export function ProjectsList() {
 
   const projects = projectsState.items ?? [];
   const viewParams = getViewQueryParams();
-  const isLoading = projectsState.status === 'loading';
+  const projectsStatus = projectsState.status;
 
   const openAddDialog = viewParams.addProject && !viewParams.projectId;
   const projectForEdit = projects.find(
@@ -38,12 +38,16 @@ export function ProjectsList() {
   ) as Project;
 
   useEffect(() => {
-    if (projectsState.fetchedAll || isLoading) {
+    if (
+      projectsState.fetchedAll ||
+      projectsStatus === 'loading' ||
+      projectsStatus === 'failed'
+    ) {
       return;
     }
 
     dispatch(getAllProjectsAsync());
-  }, [dispatch, projectsState.fetchedAll, isLoading]);
+  }, [dispatch, projectsState.fetchedAll, projectsStatus]);
 
   const handleEditDialogClose = async (result: boolean, project: Project) => {
     setQueryParam(history, ProjectsConsts.ProjectIdParam, null);

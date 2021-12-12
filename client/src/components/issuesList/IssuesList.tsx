@@ -17,6 +17,7 @@ import qs from 'query-string';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink, useHistory, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { getUsedDragAndDrop } from './../../appLocalStorage';
 import { setQueryParam } from './../../shared';
 import { ProjectsConsts, selectProject } from './../projectsList';
 import {
@@ -53,6 +54,7 @@ export function IssuesList() {
   const pausedIssues = getIssuesByStatus(allIssues, 'PAUSED');
   const completedIssues = getIssuesByStatus(allIssues, 'COMPLETED');
   const hasAnyIssues = allIssues.length > 0;
+  const usedDnd = getUsedDragAndDrop();
 
   useEffect(() => {
     if (!shouldSendRequest) {
@@ -107,7 +109,7 @@ export function IssuesList() {
           }}
         >
           <Stack direction="row" spacing={1} sx={{ alignSelf: 'center' }}>
-            {hasAnyIssues && !tipShown && (
+            {hasAnyIssues && !tipShown && !usedDnd && (
               <AnimatedTip
                 text="Drag & Drop cards"
                 container={cardsGridRef}

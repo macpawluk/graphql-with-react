@@ -1,4 +1,5 @@
 import { Project } from '@app/models';
+import { NoResultsPlaceholder } from '@app/shared';
 import AddIcon from '@mui/icons-material/Add';
 import {
   Box,
@@ -36,6 +37,9 @@ export function ProjectsList() {
   const projectForEdit = projects.find(
     (p) => p.id === viewParams.projectId
   ) as Project;
+
+  const hasAnyProject = projects.length > 0;
+  const isLoading = projectsState.status === 'loading';
 
   useEffect(() => {
     if (
@@ -78,7 +82,7 @@ export function ProjectsList() {
       <Box sx={{ display: 'flex' }}>
         <Breadcrumbs aria-label="breadcrumb" sx={{ mt: 3, mb: 4, flexGrow: 1 }}>
           <Link underline="hover" color="inherit" component={RouterLink} to="/">
-            Demo App
+            Showcase App
           </Link>
           <Typography color="text.primary">Projects</Typography>
         </Breadcrumbs>
@@ -92,6 +96,12 @@ export function ProjectsList() {
           Add New
         </Button>
       </Box>
+
+      {!hasAnyProject && !isLoading && (
+        <Box sx={{ marginTop: 20 }}>
+          <NoResultsPlaceholder text="I am so empty. Add something here…" />
+        </Box>
+      )}
 
       <Grid container spacing={2}>
         {projects.map((p) => (

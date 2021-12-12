@@ -25,7 +25,7 @@ export const ApplicationBar = () => {
         <Container fixed>
           <Toolbar style={{ paddingLeft: 0, paddingRight: 0 }}>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Demo app
+              Showcase App
             </Typography>
             <Box sx={{ display: 'flex' }}>
               {isGlobalProgressOn && (

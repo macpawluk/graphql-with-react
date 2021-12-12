@@ -21,6 +21,7 @@ import { blue, green, grey, red } from '@mui/material/colors';
 import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { useAppDispatch } from '../../app/hooks';
+import { setUsedDragAndDrop } from './../../appLocalStorage';
 import {
   changeIssueStatusAsync,
   removeIssueAsync,
@@ -91,6 +92,8 @@ export function IssueItem(props: {
         targetStatus: Issue['status'];
       }>();
       if (item && dropResult) {
+        setUsedDragAndDrop(true);
+
         dispatch(
           changeIssueStatusAsync({
             projectId: projectId,

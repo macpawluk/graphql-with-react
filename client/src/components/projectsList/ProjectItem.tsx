@@ -74,7 +74,7 @@ export function ProjectItem(props: {
     <React.Fragment>
       <ButtonBase
         component="div"
-        sx={{ height: '100%', textAlign: 'initial' }}
+        sx={{ height: '100%', textAlign: 'initial', display: 'block' }}
         onClick={handleCardClick}
       >
         <ThemeProvider theme={theme}>

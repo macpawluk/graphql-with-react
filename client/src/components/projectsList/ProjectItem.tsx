@@ -1,3 +1,5 @@
+import { useRemoveProjectMutation } from '@app/api';
+import { MessageBox } from '@app/shared';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import {
@@ -13,10 +15,7 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useAppDispatch } from '../../app/hooks';
 import { Project } from '../../models';
-import { MessageBox } from './../../shared';
-import { removeProjectAsync } from './projectsSlice';
 
 const theme = createTheme({
   components: {
@@ -42,13 +41,16 @@ export function ProjectItem(props: {
   const { project, onEditClick } = props;
   const [openRemoveMessageBox, setOpenRemoveMessageBox] = useState(false);
   const history = useHistory();
-  const dispatch = useAppDispatch();
+
+  const { callback: removeProjectCallback } = useRemoveProjectMutation();
 
   const handleDeleteMessageBoxClose = async (result: boolean) => {
     setOpenRemoveMessageBox(false);
 
     if (result === true) {
-      dispatch(removeProjectAsync(project.id));
+      removeProjectCallback({
+        variables: { project: { id: project.id } },
+      });
     }
   };
 

@@ -69,6 +69,7 @@ namespace MyPlays.GraphQlWebApi.Graph
             project.Updated = DateTime.Now;
 
             var result = await _dataService.AddEnity(project);
+            result.Issues = Array.Empty<string>();
 
             return result;
         }

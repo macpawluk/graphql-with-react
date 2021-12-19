@@ -1,3 +1,9 @@
+import {
+  ProjectsQueryResponse,
+  useAddProjectMutation,
+  useProjectsQuery,
+  useUpdateProjectMutation,
+} from '@app/api';
 import { Project } from '@app/models';
 import { NoResultsPlaceholder } from '@app/shared';
 import AddIcon from '@mui/icons-material/Add';
@@ -10,54 +16,37 @@ import {
   Typography,
 } from '@mui/material';
 import qs from 'query-string';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link as RouterLink, useHistory } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { setQueryParam } from './../../shared';
 import { AddEditProjectDialog } from './AddEditProjectDialog';
 import { ProjectItem } from './ProjectItem';
 import { ProjectsConsts } from './projectsConsts';
-import {
-  addProjectAsync,
-  getAllProjectsAsync,
-  selectProjectsState,
-  updateProjectAsync,
-} from './projectsSlice';
 
 export function ProjectsList() {
-  const dispatch = useAppDispatch();
-  const projectsState = useAppSelector(selectProjectsState);
   const history = useHistory();
 
-  const projects = projectsState.items ?? [];
   const viewParams = getViewQueryParams();
-  const projectsStatus = projectsState.status;
-
   const openAddDialog = viewParams.addProject && !viewParams.projectId;
+
+  const { data: queryData, loading: queryLoading } = useProjectsQuery();
+  const { callback: addProjectCallback } = useAddProjectMutation();
+  const { callback: updateProjectCallback } = useUpdateProjectMutation();
+
+  const projects = (queryData as ProjectsQueryResponse)?.projects ?? [];
+  const hasAnyProject = projects.length > 0;
+
   const projectForEdit = projects.find(
     (p) => p.id === viewParams.projectId
   ) as Project;
-
-  const hasAnyProject = projects.length > 0;
-  const isLoading = projectsState.status === 'loading';
-
-  useEffect(() => {
-    if (
-      projectsState.fetchedAll ||
-      projectsStatus === 'loading' ||
-      projectsStatus === 'failed'
-    ) {
-      return;
-    }
-
-    dispatch(getAllProjectsAsync());
-  }, [dispatch, projectsState.fetchedAll, projectsStatus]);
 
   const handleEditDialogClose = async (result: boolean, project: Project) => {
     setQueryParam(history, ProjectsConsts.ProjectIdParam, null);
 
     if (result === true) {
-      dispatch(updateProjectAsync(project));
+      updateProjectCallback({
+        variables: { project: Project.toProjectInput(project) },
+      });
     }
   };
 
@@ -65,7 +54,9 @@ export function ProjectsList() {
     setQueryParam(history, ProjectsConsts.AddProjectParam, false);
 
     if (result === true) {
-      dispatch(addProjectAsync(project));
+      addProjectCallback({
+        variables: { project: Project.toProjectInput(project) },
+      });
     }
   };
 
@@ -97,7 +88,7 @@ export function ProjectsList() {
         </Button>
       </Box>
 
-      {!hasAnyProject && !isLoading && (
+      {!hasAnyProject && !queryLoading && (
         <Box sx={{ marginTop: 20 }}>
           <NoResultsPlaceholder text="I am so empty. Add something here…" />
         </Box>

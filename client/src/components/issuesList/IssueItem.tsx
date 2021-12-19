@@ -1,3 +1,5 @@
+import { cloneDeep } from '@apollo/client/utilities';
+import { useRemoveIssueMutation, useUpdateIssueMutation } from '@app/api';
 import { Issue } from '@app/models';
 import { MessageBox } from '@app/shared';
 import { makeStyles } from '@material-ui/core/styles';
@@ -18,14 +20,9 @@ import {
   Typography,
 } from '@mui/material';
 import { blue, green, grey, red } from '@mui/material/colors';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDrag } from 'react-dnd';
-import { useAppDispatch } from '../../app/hooks';
 import { setUsedDragAndDrop } from './../../appLocalStorage';
-import {
-  changeIssueStatusAsync,
-  removeIssueAsync,
-} from './../projectsList/projectsSlice';
 
 const theme = createTheme({
   components: {
@@ -62,13 +59,22 @@ export function IssueItem(props: {
 }) {
   const { issue, projectId, onEditClick } = props;
   const [openRemoveMessageBox, setOpenRemoveMessageBox] = useState(false);
-  const dispatch = useAppDispatch();
+  const issueRef = useRef(issue);
+  issueRef.current = issue;
+
+  const { callback: updateIssueCallback } = useUpdateIssueMutation();
+  const { callback: removeIssueCallback } = useRemoveIssueMutation({
+    projectId,
+    issueId: issue.id,
+  });
 
   const handleDeleteMessageBoxClose = async (result: boolean) => {
     setOpenRemoveMessageBox(false);
 
     if (result === true) {
-      dispatch(removeIssueAsync({ projectId, issueId: issue.id }));
+      removeIssueCallback({
+        variables: { issue: { id: issue.id } },
+      });
     }
   };
 
@@ -81,7 +87,7 @@ export function IssueItem(props: {
 
   const [_, drag] = useDrag(() => ({
     type: 'ISSUE_CARD',
-    item: issue,
+    item: issueRef,
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
       handlerId: monitor.getHandlerId(),
@@ -91,16 +97,20 @@ export function IssueItem(props: {
         dropEffect: string;
         targetStatus: Issue['status'];
       }>();
-      if (item && dropResult) {
+
+      if (item.current && dropResult) {
         setUsedDragAndDrop(true);
 
-        dispatch(
-          changeIssueStatusAsync({
-            projectId: projectId,
-            issue: issue,
-            newStatus: dropResult.targetStatus,
-          })
-        );
+        var updatedIssue = cloneDeep(item.current);
+        updatedIssue.status = dropResult.targetStatus;
+        updatedIssue.lastStatusChange = new Date().toISOString();
+
+        updateIssueCallback({
+          variables: { issue: Issue.toIssueInput(updatedIssue) },
+          optimisticResponse: {
+            updateIssue: updatedIssue,
+          },
+        });
       }
     },
   }));

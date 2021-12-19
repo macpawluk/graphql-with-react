@@ -17,4 +17,16 @@ export module Project {
   export function hasItems(project: Project) {
     return project?.issuesConnection?.items?.length > 0 ?? false;
   }
+
+  export function toProjectInput(project: Project) {
+    const { id, name, abbreviation, description, color } = project;
+
+    return {
+      id,
+      name,
+      abbreviation,
+      description,
+      color,
+    };
+  }
 }

@@ -1,8 +1,19 @@
+import {
+  ApolloClient,
+  ApolloLink,
+  ApolloProvider,
+  createHttpLink,
+  gql,
+  NormalizedCacheObject,
+  useQuery,
+} from '@apollo/client';
+import { onError } from '@apollo/client/link/error';
+import { AppLocalState, getAppLocalState } from '@app/api';
+import { cache, lastErrorVar, networkNotifierLink } from '@app/cache';
 import { Box, CircularProgress, Container } from '@mui/material';
 import { lazy, Suspense } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useDispatch } from 'react-redux';
 import {
   BrowserRouter as Router,
   Redirect,
@@ -10,46 +21,68 @@ import {
   Switch,
 } from 'react-router-dom';
 import './App.css';
-import { useAppSelector } from './app/hooks';
-import { clearError, selectAppState } from './appStateSlice';
 import { ApplicationBar } from './components/appBar';
 import { ErrorNotification } from './ErrorNotification';
 
 const ProjectsList = lazy(() => import('./components/projectsList'));
 const IssuesList = lazy(() => import('./components/issuesList'));
 
-function App() {
-  const dispatch = useDispatch();
-  const appState = useAppSelector(selectAppState);
-  const hasError = !!appState.lastError;
+const httpLink = createHttpLink({
+  uri: process.env.REACT_APP_API_ADDRESS as string,
+});
 
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  console.warn('GLOBAL ERROR HANDLER', graphQLErrors, networkError);
+
+  const errorMessage = !!graphQLErrors
+    ? 'An API error occurred. Try again.'
+    : 'A network error occurred. Try again.';
+  lastErrorVar(errorMessage);
+});
+
+const localStateTypeDefs = gql`
+  extend type Query {
+    lastError: String
+  }
+`;
+
+const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  cache,
+  link: ApolloLink.from([errorLink, networkNotifierLink.concat(httpLink)]),
+  defaultOptions: {
+    mutate: {
+      errorPolicy: 'all',
+    },
+  },
+  typeDefs: localStateTypeDefs,
+});
+
+function App() {
   const handleErrorPopupClose = () => {
-    dispatch(clearError());
+    lastErrorVar('');
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <ApplicationBar />
-      <Container fixed>
-        <Router>
-          <Suspense fallback={<ModuleLoader />}>
-            <Switch>
-              <Route exact path="/">
-                <Redirect to="/projects" />
-              </Route>
-              <Route path="/projects/" component={ProjectsList} />
-              <Route path="/project/:id/issues" component={IssuesList} />
-            </Switch>
-          </Suspense>
-        </Router>
-      </Container>
+    <ApolloProvider client={client}>
+      <DndProvider backend={HTML5Backend}>
+        <ApplicationBar />
+        <Container fixed>
+          <Router>
+            <Suspense fallback={<ModuleLoader />}>
+              <Switch>
+                <Route exact path="/">
+                  <Redirect to="/projects" />
+                </Route>
+                <Route path="/projects/" component={ProjectsList} />
+                <Route path="/project/:id/issues" component={IssuesList} />
+              </Switch>
+            </Suspense>
+          </Router>
+        </Container>
 
-      <ErrorNotification
-        errorMessage={appState.lastError as string}
-        open={hasError}
-        onClose={handleErrorPopupClose}
-      />
-    </DndProvider>
+        <ErrorProvider onClose={handleErrorPopupClose} />
+      </DndProvider>
+    </ApolloProvider>
   );
 }
 
@@ -84,3 +117,16 @@ const ModuleLoader = () => {
 };
 
 export default App;
+
+export function ErrorProvider(props: { onClose?: () => void }) {
+  const { data } = useQuery<AppLocalState>(getAppLocalState);
+  const hasError = !!data?.lastError;
+
+  return (
+    <ErrorNotification
+      errorMessage={data?.lastError ?? ''}
+      open={hasError}
+      onClose={props.onClose}
+    />
+  );
+}

@@ -2,8 +2,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@app/api": ["src/api/index"],
       "@app/shared": ["src/shared/index"],
-      "@app/models": ["src/models/index"]
+      "@app/models": ["src/models/index"],
+      "@app/cache": ["src/cache"]
     }
   }
 }

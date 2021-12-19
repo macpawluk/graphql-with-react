@@ -1,3 +1,4 @@
+import { useApolloNetworkStatus } from '@app/cache';
 import {
   AppBar,
   Box,
@@ -8,11 +9,10 @@ import {
   Typography,
 } from '@mui/material';
 import { purple } from '@mui/material/colors';
-import { useAppSelector } from './../../app/hooks';
-import { selectIsGlobalProgressOn } from './../../appStateSlice';
 
 export const ApplicationBar = () => {
-  const isGlobalProgressOn = useAppSelector(selectIsGlobalProgressOn);
+  const { numPendingQueries, numPendingMutations } = useApolloNetworkStatus();
+  const isGlobalProgressOn = numPendingQueries > 0 || numPendingMutations > 0;
 
   return (
     <Box sx={{ flexGrow: 1 }}>

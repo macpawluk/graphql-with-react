@@ -7,3 +7,17 @@ export interface Issue {
   updated: string;
   lastStatusChange: string;
 }
+
+export module Issue {
+  export function toIssueInput(issue: Issue) {
+    const { id, name, description, type, status } = issue;
+
+    return {
+      id,
+      name,
+      description,
+      type,
+      status,
+    };
+  }
+}

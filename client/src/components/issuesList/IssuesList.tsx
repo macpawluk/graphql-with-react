@@ -1,3 +1,9 @@
+import {
+  SingleProjectResponse,
+  useAddIssueMutation,
+  useSingleProjectQuery,
+  useUpdateIssueMutation,
+} from '@app/api';
 import { Issue, Project } from '@app/models';
 import { NoResultsPlaceholder } from '@app/shared';
 import AddIcon from '@mui/icons-material/Add';
@@ -16,31 +22,25 @@ import { blue } from '@mui/material/colors';
 import qs from 'query-string';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink, useHistory, useParams } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { getUsedDragAndDrop } from './../../appLocalStorage';
 import { setQueryParam } from './../../shared';
-import { ProjectsConsts, selectProject } from './../projectsList';
-import {
-  addIssueAsync,
-  getSingleProjectAsync,
-  selectProjectsState,
-  updateIssueAsync,
-} from './../projectsList/projectsSlice';
+import { ProjectsConsts } from './../projectsList';
 import { AddEditIssueDialog } from './AddEditIssueDialog';
 import { IssuesColumn } from './IssuesColumn';
 import { IssuesConsts } from './issuesConsts';
 
 export function IssuesList() {
   const { id: projectId } = useParams<{ id: string }>();
-  const dispatch = useAppDispatch();
   const history = useHistory();
-  const project = useAppSelector((state) =>
-    selectProject(state, projectId)
-  ) as Project;
-  const [tipShown, setTipShown] = useState(false);
-  const isLoading = useAppSelector(selectProjectsState).status === 'loading';
 
-  const shouldSendRequest = !project || !Project.hasItems(project);
+  const { data, loading } = useSingleProjectQuery(projectId);
+  const project = (data as SingleProjectResponse)?.project;
+
+  const { callback: addIssueCallback } = useAddIssueMutation({ projectId });
+  const { callback: updateIssueCallback } = useUpdateIssueMutation();
+
+  const [tipShown, setTipShown] = useState(false);
+
   const viewParams = getViewQueryParams();
 
   const openAddDialog = viewParams.addIssue && !viewParams.issueId;
@@ -56,18 +56,13 @@ export function IssuesList() {
   const hasAnyIssues = allIssues.length > 0;
   const usedDnd = getUsedDragAndDrop();
 
-  useEffect(() => {
-    if (!shouldSendRequest) {
-      return;
-    }
-    dispatch(getSingleProjectAsync(projectId));
-  }, [dispatch, projectId, shouldSendRequest]);
-
   const handleEditDialogClose = async (result: boolean, issue: Issue) => {
     setQueryParam(history, IssuesConsts.IssueIdParam, null);
 
     if (result === true) {
-      dispatch(updateIssueAsync({ issue, projectId }));
+      updateIssueCallback({
+        variables: { issue: Issue.toIssueInput(issue) },
+      });
     }
   };
 
@@ -75,7 +70,9 @@ export function IssuesList() {
     setQueryParam(history, IssuesConsts.AddIssueParam, false);
 
     if (result === true) {
-      dispatch(addIssueAsync({ issue, projectId: project.id }));
+      addIssueCallback({
+        variables: { issue: Issue.toIssueInput(issue), projectId },
+      });
     }
   };
 
@@ -171,7 +168,7 @@ export function IssuesList() {
         </Grid>
       )}
 
-      {!hasAnyIssues && !isLoading && (
+      {!hasAnyIssues && !loading && (
         <Box sx={{ marginTop: 20 }}>
           <NoResultsPlaceholder text="I am so empty. Add something here…" />
         </Box>

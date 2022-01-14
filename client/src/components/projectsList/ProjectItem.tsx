@@ -1,4 +1,5 @@
 import { useRemoveProjectMutation } from '@app/api';
+import { Project } from '@app/graphql-types';
 import { MessageBox } from '@app/shared';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -15,7 +16,6 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Project } from '../../models';
 
 const theme = createTheme({
   components: {

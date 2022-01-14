@@ -1,4 +1,4 @@
-import { Issue } from '@app/models';
+import { Issue, IssueStatus, IssueType } from '@app/graphql-types';
 import {
   Box,
   Button,
@@ -169,9 +169,11 @@ export function AddEditIssueDialog(props: DialogProps) {
 }
 
 const useEditIssueForm = ({ issue, open }: { issue: Issue; open: boolean }) => {
-  const [type, setType] = useState<Issue['type']>(issue?.type ?? 'TASK');
+  const [type, setType] = useState<Issue['type']>(
+    issue?.type ?? IssueType.Task
+  );
   const [status, setStatus] = useState<Issue['status']>(
-    issue?.status ?? 'NOT_STARTED'
+    issue?.status ?? IssueStatus.NotStarted
   );
   const [name, setName] = useState(issue?.name ?? '');
   const [nameError, setNameError] = useState('');
@@ -224,8 +226,8 @@ const useEditIssueForm = ({ issue, open }: { issue: Issue; open: boolean }) => {
 
   useEffect(() => {
     if (open) {
-      setType(issue?.type ?? 'TASK');
-      setStatus(issue?.status ?? 'NOT_STARTED');
+      setType(issue?.type ?? IssueType.Task);
+      setStatus(issue?.status ?? IssueStatus.NotStarted);
       setName(issue?.name ?? '');
       setDescription(issue?.description ?? '');
 

@@ -1,0 +1,13 @@
+query getProjects {
+  projects {
+    id
+    name
+    abbreviation
+    description
+    color
+    updated
+    issuesConnection(first: 100) {
+      totalCount
+    }
+  }
+}

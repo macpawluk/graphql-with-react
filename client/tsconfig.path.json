@@ -3,9 +3,10 @@
     "baseUrl": ".",
     "paths": {
       "@app/api": ["src/api/index"],
+      "@app/cache": ["src/cache"],
       "@app/shared": ["src/shared/index"],
-      "@app/models": ["src/models/index"],
-      "@app/cache": ["src/cache"]
+      "@app/graphql-hooks": ["src/generated/graphql-hooks"],
+      "@app/graphql-types": ["src/generated/graphql-types"]
     }
   }
 }

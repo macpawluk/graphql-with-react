@@ -1,0 +1,13 @@
+mutation addProject($project: ProjectInsertInput!) {
+  addProject(project: $project) {
+    id
+    name
+    abbreviation
+    description
+    color
+    updated
+    issuesConnection(first: 100) {
+      totalCount
+    }
+  }
+}

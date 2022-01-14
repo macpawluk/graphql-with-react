@@ -1,0 +1,11 @@
+mutation addIssue($issue: IssueInsertInput!, $projectId: ID!) {
+  addIssue(issue: $issue, projectId: $projectId) {
+    id
+    name
+    description
+    type
+    status
+    updated
+    lastStatusChange
+  }
+}

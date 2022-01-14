@@ -1,4 +1,4 @@
-import { Project } from '@app/models';
+import { Project } from '@app/graphql-types';
 import {
   Box,
   Button,

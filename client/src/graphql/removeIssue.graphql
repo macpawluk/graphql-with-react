@@ -1,0 +1,6 @@
+mutation removeIssue($issue: EntityIDInput!) {
+  removeIssue(issue: $issue) {
+    id
+    name
+  }
+}

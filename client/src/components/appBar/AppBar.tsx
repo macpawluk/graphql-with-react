@@ -38,7 +38,13 @@ export const ApplicationBar = () => {
                   }}
                 />
               )}
-              <Button color="inherit">About</Button>
+              <Button
+                color="inherit"
+                href="https://www.linkedin.com/in/maciej-pawluk-6a45916/"
+                target="_blank"
+              >
+                About
+              </Button>
             </Box>
           </Toolbar>
         </Container>

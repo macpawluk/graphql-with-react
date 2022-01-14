@@ -1,6 +1,6 @@
 import { cloneDeep } from '@apollo/client/utilities';
 import { useRemoveIssueMutation, useUpdateIssueMutation } from '@app/api';
-import { Issue } from '@app/models';
+import { Issue, IssueExt } from '@app/graphql-types';
 import { MessageBox } from '@app/shared';
 import { makeStyles } from '@material-ui/core/styles';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -106,7 +106,7 @@ export function IssueItem(props: {
         updatedIssue.lastStatusChange = new Date().toISOString();
 
         updateIssueCallback({
-          variables: { issue: Issue.toIssueInput(updatedIssue) },
+          variables: { issue: IssueExt.toIssueInput(updatedIssue) },
           optimisticResponse: {
             updateIssue: updatedIssue,
           },

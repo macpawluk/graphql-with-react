@@ -1,43 +1,43 @@
 import { cloneDeep } from '@apollo/client/utilities';
-import { useMutation } from '@apollo/client';
 import {
-  addProject as addProjectMutation,
-  IssueAddResponse,
-  ProjectAddResponse,
-  ProjectRemoveResponse,
-  ProjectUpdateResponse,
-  removeProject as removeProjectMutation,
-  updateProject as updateProjectMutation,
-  addIssue as addIssueMutation,
-  updateIssue as updateIssueMutation,
-  removeIssue as removeIssueMutation,
-  IssueUpdateResponse,
-  IssueRemoveResponse,
-} from './mutations';
+  useAddIssueMutation as useAddIssueMutationInternal,
+  useAddProjectMutation as useAddProjectMutationInternal,
+  useRemoveIssueMutation as useRemoveIssueMutationInternal,
+  useRemoveProjectMutation as useRemoveProjectMutationInternal,
+  useUpdateIssueMutation as useUpdateIssueMutationInternal,
+  useUpdateProjectMutation as useUpdateProjectMutationInternal,
+} from '@app/graphql-hooks';
 import {
-  getProjects,
-  getSingleProject,
-  ProjectsQueryResponse,
-  SingleProjectResponse,
-} from './queries';
+  GetProjectDocument,
+  GetProjectsDocument,
+  Issue,
+  Project,
+} from '@app/graphql-types';
+import { ProjectsQueryResponse, SingleProjectResponse } from './queries';
 
 export const useAddProjectMutation = () => {
-  const [addProjectCallback, { data, loading }] =
-    useMutation<ProjectAddResponse>(addProjectMutation, {
+  const [addProjectCallback, { data, loading }] = useAddProjectMutationInternal(
+    {
       update: (cache, result) => {
         const allProjects = cache.readQuery<ProjectsQueryResponse>({
-          query: getProjects,
+          query: GetProjectsDocument,
         });
         if (!allProjects || !result.data?.addProject) {
           return;
         }
 
         cache.writeQuery<ProjectsQueryResponse>({
-          query: getProjects,
-          data: { projects: [...allProjects.projects, result.data.addProject] },
+          query: GetProjectsDocument,
+          data: {
+            projects: [
+              ...(allProjects.projects as Project[]),
+              result.data.addProject as Project,
+            ],
+          },
         });
       },
-    });
+    }
+  );
 
   return {
     callback: addProjectCallback,
@@ -48,7 +48,7 @@ export const useAddProjectMutation = () => {
 
 export const useUpdateProjectMutation = () => {
   const [updateProjectCallback, { data, loading }] =
-    useMutation<ProjectUpdateResponse>(updateProjectMutation);
+    useUpdateProjectMutationInternal();
 
   return {
     callback: updateProjectCallback,
@@ -59,10 +59,10 @@ export const useUpdateProjectMutation = () => {
 
 export const useRemoveProjectMutation = () => {
   const [removeProjectCallback, { data, loading }] =
-    useMutation<ProjectRemoveResponse>(removeProjectMutation, {
+    useRemoveProjectMutationInternal({
       update: (cache, result) => {
         const allProjects = cache.readQuery<ProjectsQueryResponse>({
-          query: getProjects,
+          query: GetProjectsDocument,
         });
         if (!allProjects || !result.data?.removeProject) {
           return;
@@ -73,7 +73,7 @@ export const useRemoveProjectMutation = () => {
         );
 
         cache.writeQuery<ProjectsQueryResponse>({
-          query: getProjects,
+          query: GetProjectsDocument,
           data: { projects: newProjects },
         });
       },
@@ -89,30 +89,29 @@ export const useRemoveProjectMutation = () => {
 export const useAddIssueMutation = (props: { projectId: string }) => {
   const { projectId } = props;
 
-  const [addIssueCallback, { data, loading }] = useMutation<IssueAddResponse>(
-    addIssueMutation,
-    {
-      update: (cache, result) => {
-        const projectResponse = cache.readQuery<SingleProjectResponse>({
-          query: getSingleProject,
-          variables: { id: projectId },
-        });
+  const [addIssueCallback, { data, loading }] = useAddIssueMutationInternal({
+    update: (cache, result) => {
+      const projectResponse = cache.readQuery<SingleProjectResponse>({
+        query: GetProjectDocument,
+        variables: { id: projectId },
+      });
 
-        if (!projectResponse?.project || !result.data?.addIssue) {
-          return;
-        }
+      if (!projectResponse?.project || !result.data?.addIssue) {
+        return;
+      }
 
-        var updatedProject = cloneDeep(projectResponse.project);
-        updatedProject.issuesConnection.items.push(result.data.addIssue);
+      var updatedProject = cloneDeep(projectResponse.project);
+      (updatedProject.issuesConnection?.items as Issue[]).push(
+        result.data.addIssue
+      );
 
-        cache.writeQuery<SingleProjectResponse>({
-          query: getSingleProject,
-          variables: { id: projectId },
-          data: { project: updatedProject },
-        });
-      },
-    }
-  );
+      cache.writeQuery<SingleProjectResponse>({
+        query: GetProjectDocument,
+        variables: { id: projectId },
+        data: { project: updatedProject },
+      });
+    },
+  });
 
   return {
     callback: addIssueCallback,
@@ -123,7 +122,7 @@ export const useAddIssueMutation = (props: { projectId: string }) => {
 
 export const useUpdateIssueMutation = () => {
   const [updateIssueCallback, { data, loading }] =
-    useMutation<IssueUpdateResponse>(updateIssueMutation);
+    useUpdateIssueMutationInternal();
 
   return {
     callback: updateIssueCallback,
@@ -139,10 +138,10 @@ export const useRemoveIssueMutation = (props: {
   const { projectId, issueId } = props;
 
   const [removeIssueCallback, { data, loading }] =
-    useMutation<IssueRemoveResponse>(removeIssueMutation, {
+    useRemoveIssueMutationInternal({
       update: (cache, result) => {
         const projectResponse = cache.readQuery<SingleProjectResponse>({
-          query: getSingleProject,
+          query: GetProjectDocument,
           variables: { id: projectId },
         });
 
@@ -150,21 +149,20 @@ export const useRemoveIssueMutation = (props: {
           return;
         }
 
-        const indexToRemove =
-          projectResponse.project.issuesConnection.items.findIndex(
-            (p) => p.id === issueId
-          );
+        const indexToRemove = (
+          projectResponse.project.issuesConnection?.items as Issue[]
+        ).findIndex((p) => p.id === issueId);
         if (indexToRemove < 0) {
           return;
         }
 
         var updatedProject = cloneDeep(projectResponse.project);
 
-        const issues = updatedProject.issuesConnection.items;
+        const issues = updatedProject.issuesConnection?.items as Issue[];
         issues.splice(indexToRemove, 1);
 
         cache.writeQuery<SingleProjectResponse>({
-          query: getSingleProject,
+          query: GetProjectDocument,
           variables: { id: projectId },
           data: { project: updatedProject },
         });

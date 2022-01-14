@@ -10,11 +10,11 @@ namespace MyPlays.GraphQlWebApi.Graph.Types
             Name = "IssueStatus";
             Description = "Status of an issue";
 
-            AddValue("Unknown", "Unknown", (int)IssueStatus.Unknown);
-            AddValue("NotStarted", "The issue is not started", (int)IssueStatus.NotStarted);
-            AddValue("InProgress", "The issue is in progress", (int)IssueStatus.InProgress);
-            AddValue("Paused", "The issue is paused", (int)IssueStatus.Paused);
-            AddValue("Completed", "The issue is completed", (int)IssueStatus.Completed);
+            AddValue("UNKNOWN", "Unknown", (int)IssueStatus.Unknown);
+            AddValue("NOT_STARTED", "The issue is not started", (int)IssueStatus.NotStarted);
+            AddValue("IN_PROGRESS", "The issue is in progress", (int)IssueStatus.InProgress);
+            AddValue("PAUSED", "The issue is paused", (int)IssueStatus.Paused);
+            AddValue("COMPLETED", "The issue is completed", (int)IssueStatus.Completed);
         }
     }
 }

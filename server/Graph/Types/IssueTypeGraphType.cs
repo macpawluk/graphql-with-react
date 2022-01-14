@@ -10,11 +10,12 @@ namespace MyPlays.GraphQlWebApi.Graph.Types
             Name = "IssueType";
             Description = "Type of an issue";
 
-            AddValue("Unknown", "Unknown", (int)IssueType.Unknown);
-            AddValue("Task", "A task", (int)IssueType.Task);
-            AddValue("Bug", "A bug", (int)IssueType.Bug);
-            AddValue("Story", "A story", (int)IssueType.Story);
-            AddValue("Improvement", "An improvement", (int)IssueType.Improvement);
+            AddValue("UNKNOWN", "Unknown", (int)IssueType.Unknown);
+            AddValue("TASK", "A task", (int)IssueType.Task);
+            AddValue("BUG", "A bug", (int)IssueType.Bug);
+            AddValue("STORY", "A story", (int)IssueType.Story);
+            AddValue("IMPROVEMENT", "An improvement", (int)IssueType.Improvement);
+            AddValue("IMPROVEMENT", "An improvement", (int)IssueType.Improvement);
         }
     }
 }

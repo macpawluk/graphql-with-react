@@ -1,4 +1,4 @@
-import { Issue } from '@app/models';
+import { Issue } from '@app/graphql-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box, Chip } from '@mui/material';
 import { grey } from '@mui/material/colors';

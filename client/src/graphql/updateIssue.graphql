@@ -1,0 +1,11 @@
+mutation updateIssue($issue: IssueInput!) {
+  updateIssue(issue: $issue) {
+    id
+    name
+    description
+    type
+    status
+    updated
+    lastStatusChange
+  }
+}

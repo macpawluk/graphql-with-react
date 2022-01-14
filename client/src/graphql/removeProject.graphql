@@ -1,0 +1,6 @@
+mutation removeProject($project: EntityIDInput!) {
+  removeProject(project: $project) {
+    id
+    name
+  }
+}

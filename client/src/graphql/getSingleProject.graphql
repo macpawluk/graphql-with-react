@@ -1,0 +1,26 @@
+query getProject($id: String!) {
+  project(id: $id) {
+    id
+    name
+    abbreviation
+    description
+    color
+    updated
+    issuesConnection(first: 1000) {
+      totalCount
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      items {
+        id
+        name
+        description
+        type
+        status
+        updated
+        lastStatusChange
+      }
+    }
+  }
+}

@@ -1,10 +1,10 @@
 import {
   SingleProjectResponse,
   useAddIssueMutation,
-  useSingleProjectQuery,
   useUpdateIssueMutation,
 } from '@app/api';
-import { Issue, Project } from '@app/models';
+import { useGetProjectQuery } from '@app/graphql-hooks';
+import { Issue, IssueExt, IssueStatus, Project } from '@app/graphql-types';
 import { NoResultsPlaceholder } from '@app/shared';
 import AddIcon from '@mui/icons-material/Add';
 import {
@@ -33,7 +33,9 @@ export function IssuesList() {
   const { id: projectId } = useParams<{ id: string }>();
   const history = useHistory();
 
-  const { data, loading } = useSingleProjectQuery(projectId);
+  const { data, loading } = useGetProjectQuery({
+    variables: { id: projectId },
+  });
   const project = (data as SingleProjectResponse)?.project;
 
   const { callback: addIssueCallback } = useAddIssueMutation({ projectId });
@@ -44,15 +46,17 @@ export function IssuesList() {
   const viewParams = getViewQueryParams();
 
   const openAddDialog = viewParams.addIssue && !viewParams.issueId;
-  const issueForEdit = project?.issuesConnection?.items?.find(
+
+  const issues = project?.issuesConnection?.items as Issue[];
+  const issueForEdit = issues?.find(
     (i) => i.id === viewParams.issueId
   ) as Issue;
 
-  const allIssues = project?.issuesConnection?.items ?? [];
-  const notStartedIssues = getIssuesByStatus(allIssues, 'NOT_STARTED');
-  const startedIssues = getIssuesByStatus(allIssues, 'IN_PROGRESS');
-  const pausedIssues = getIssuesByStatus(allIssues, 'PAUSED');
-  const completedIssues = getIssuesByStatus(allIssues, 'COMPLETED');
+  const allIssues = (project?.issuesConnection?.items ?? []) as Issue[];
+  const notStartedIssues = getIssuesByStatus(allIssues, IssueStatus.NotStarted);
+  const startedIssues = getIssuesByStatus(allIssues, IssueStatus.InProgress);
+  const pausedIssues = getIssuesByStatus(allIssues, IssueStatus.Paused);
+  const completedIssues = getIssuesByStatus(allIssues, IssueStatus.Completed);
   const hasAnyIssues = allIssues.length > 0;
   const usedDnd = getUsedDragAndDrop();
 
@@ -61,7 +65,7 @@ export function IssuesList() {
 
     if (result === true) {
       updateIssueCallback({
-        variables: { issue: Issue.toIssueInput(issue) },
+        variables: { issue: IssueExt.toIssueInput(issue) },
       });
     }
   };
@@ -71,7 +75,7 @@ export function IssuesList() {
 
     if (result === true) {
       addIssueCallback({
-        variables: { issue: Issue.toIssueInput(issue), projectId },
+        variables: { issue: IssueExt.toIssueInput(issue), projectId },
       });
     }
   };
@@ -132,7 +136,7 @@ export function IssuesList() {
           <Grid item xs={3}>
             <IssuesColumn
               header="Not started"
-              issuesStatus="NOT_STARTED"
+              issuesStatus={IssueStatus.NotStarted}
               issues={notStartedIssues}
               projectId={project?.id}
               onEditClick={handleEditClick}
@@ -141,7 +145,7 @@ export function IssuesList() {
           <Grid item xs={3}>
             <IssuesColumn
               header="In progress"
-              issuesStatus="IN_PROGRESS"
+              issuesStatus={IssueStatus.InProgress}
               issues={startedIssues}
               projectId={project?.id}
               onEditClick={handleEditClick}
@@ -150,7 +154,7 @@ export function IssuesList() {
           <Grid item xs={3}>
             <IssuesColumn
               header="Paused"
-              issuesStatus="PAUSED"
+              issuesStatus={IssueStatus.Paused}
               issues={pausedIssues}
               projectId={project?.id}
               onEditClick={handleEditClick}
@@ -159,7 +163,7 @@ export function IssuesList() {
           <Grid item xs={3}>
             <IssuesColumn
               header="Completed"
-              issuesStatus="COMPLETED"
+              issuesStatus={IssueStatus.Completed}
               issues={completedIssues}
               projectId={project?.id}
               onEditClick={handleEditClick}
@@ -190,7 +194,7 @@ export function IssuesList() {
   );
 }
 
-const getIssuesByStatus = (issues: Issue[], status: Issue['status']) =>
+const getIssuesByStatus = (issues: Issue[], status: IssueStatus) =>
   issues.filter((i) => i.status === status);
 
 const getViewQueryParams = () => {

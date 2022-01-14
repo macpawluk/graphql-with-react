@@ -1,10 +1,10 @@
 import {
   ProjectsQueryResponse,
   useAddProjectMutation,
-  useProjectsQuery,
   useUpdateProjectMutation,
 } from '@app/api';
-import { Project } from '@app/models';
+import { useGetProjectsQuery } from '@app/graphql-hooks';
+import { Project, ProjectExt } from '@app/graphql-types';
 import { NoResultsPlaceholder } from '@app/shared';
 import AddIcon from '@mui/icons-material/Add';
 import {
@@ -29,7 +29,7 @@ export function ProjectsList() {
   const viewParams = getViewQueryParams();
   const openAddDialog = viewParams.addProject && !viewParams.projectId;
 
-  const { data: queryData, loading: queryLoading } = useProjectsQuery();
+  const { data: queryData, loading: queryLoading } = useGetProjectsQuery();
   const { callback: addProjectCallback } = useAddProjectMutation();
   const { callback: updateProjectCallback } = useUpdateProjectMutation();
 
@@ -45,7 +45,7 @@ export function ProjectsList() {
 
     if (result === true) {
       updateProjectCallback({
-        variables: { project: Project.toProjectInput(project) },
+        variables: { project: ProjectExt.toProjectInput(project) },
       });
     }
   };
@@ -55,7 +55,7 @@ export function ProjectsList() {
 
     if (result === true) {
       addProjectCallback({
-        variables: { project: Project.toProjectInput(project) },
+        variables: { project: ProjectExt.toProjectInput(project) },
       });
     }
   };

@@ -118,7 +118,11 @@ export function IssueItem(props: {
   return (
     <React.Fragment>
       <ThemeProvider theme={theme}>
-        <Card sx={{ mb: 2, mr: 2, width: 270 }} ref={drag} role="Handle">
+        <Card
+          sx={{ mb: 2, mr: 2, width: 270, cursor: 'move' }}
+          ref={drag}
+          role="Handle"
+        >
           <CardContent sx={{ padding: 0 }}>
             <Box sx={{ height: 140 }}>
               <div>
